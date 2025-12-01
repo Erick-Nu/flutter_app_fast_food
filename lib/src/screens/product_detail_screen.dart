@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+// --- COLORES DE LA MARCA ---
+const Color kPrimaryColor = Color(0xFFD32F2F); // Rojo Pizzería
+const Color kTextColor = Color(0xFF333333);
+const Color kWhiteColor = Colors.white;
+
 class ProductDetailScreen extends StatelessWidget {
   final String title;
   final String price;
@@ -21,18 +26,27 @@ class ProductDetailScreen extends StatelessWidget {
       body: Column(
         children: [
           // ---------------------------------------------------------
-          // PARTE SUPERIOR (Fija): Imagen y Encabezado
+          // 1. IMAGEN HERO CON BOTONES (Parte Superior)
           // ---------------------------------------------------------
           SizedBox(
             height: size.height * 0.45,
             child: Stack(
               children: [
+                // Fondo: Imagen
                 Positioned.fill(
                   child: Hero(
-                    tag: title,
-                    child: Image.network(imageUrl, fit: BoxFit.cover),
+                    tag: title, // Animación suave
+                    child: Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(color: Colors.grey[300], child: const Icon(Icons.local_pizza, size: 50, color: Colors.grey));
+                      },
+                    ),
                   ),
                 ),
+                
+                // Capa: Gradiente para que los botones se vean
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -40,15 +54,17 @@ class ProductDetailScreen extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withValues(alpha: 0.6),
+                          Colors.black.withValues(alpha: 0.6), // Oscuro arriba
                           Colors.transparent,
-                          Colors.black.withValues(alpha: 0.1),
+                          Colors.black.withValues(alpha: 0.2), // Sutil abajo
                         ],
                         stops: const [0.0, 0.4, 1.0],
                       ),
                     ),
                   ),
                 ),
+
+                // Botones Flotantes (Atrás y Favorito)
                 SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -72,24 +88,26 @@ class ProductDetailScreen extends StatelessWidget {
           ),
           
           // ---------------------------------------------------------
-          // PARTE INFERIOR (Flexible): Panel Blanco
+          // 2. PANEL DE INFORMACIÓN (Blanco y Curvo)
           // ---------------------------------------------------------
-          // Usamos Expanded aquí para que el panel blanco ocupe TODO el 
-          // espacio que sobra debajo de la imagen.
           Expanded(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
               width: double.infinity,
               decoration: const BoxDecoration(
-                color: Colors.white,
+                color: kWhiteColor,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(30)), 
+                boxShadow: [
+                  BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -5))
+                ],
               ),
+              // Subimos el panel 30px para tapar ligeramente la imagen
               transform: Matrix4.translationValues(0, -30, 0),
               
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // --- ELEMENTOS FIJOS SUPERIORES ---
+                  // Barra gris para indicar "deslizable" visualmente
                   Center(
                     child: Container(
                       width: 50, height: 5,
@@ -104,11 +122,12 @@ class ProductDetailScreen extends StatelessWidget {
                   // Título y Precio
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded( // Para que el título no empuje al precio si es muy largo
+                      Expanded(
                         child: Text(
                           title,
-                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: kTextColor),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -117,79 +136,83 @@ class ProductDetailScreen extends StatelessWidget {
                       Text(
                         price,
                         style: const TextStyle(
-                          fontSize: 24, 
+                          fontSize: 26, 
                           fontWeight: FontWeight.w900, 
-                          color: Colors.deepPurple
+                          color: kPrimaryColor // Precio en ROJO
                         ),
                       ),
                     ],
                   ),
                   
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
 
-                  // Barra Nutricional
+                  // Barra Nutricional (Datos de la Pizza)
                   Container(
-                    padding: const EdgeInsets.all(15),
+                    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                     decoration: BoxDecoration(
-                      color: Colors.grey[50],
+                      color: Colors.grey[50], // Fondo muy suave
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.grey[200]!),
                     ),
                     child: Row(
                       children: [
-                        const Expanded(child: _NutriInfo(label: "Kcal", value: "450", icon: Icons.local_fire_department)),
+                        const Expanded(child: _NutriInfo(label: "Kcal", value: "350", icon: Icons.local_fire_department)),
                         Container(height: 30, width: 1, color: Colors.grey[300]),
-                        const Expanded(child: _NutriInfo(label: "Proteína", value: "30g", icon: Icons.fitness_center)),
+                        const Expanded(child: _NutriInfo(label: "Tamaño", value: "35cm", icon: Icons.straighten)),
                         Container(height: 30, width: 1, color: Colors.grey[300]),
                         const Expanded(child: _NutriInfo(label: "Tiempo", value: "20'", icon: Icons.timer)),
                       ],
                     ),
                   ),
                   
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
                   
                   Text(
-                    "Descripción",
+                    "Ingredientes & Detalles",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800]),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
 
-                  // --- ELEMENTO EXPANDIDO (EL RESORTE) ---
-                  // Este Expanded es CLAVE. Le dice al texto: "Ocupa todo el espacio
-                  // que quede libre entre el título 'Descripción' y el botón de abajo".
+                  // Descripción con Scroll (Expanded)
                   Expanded(
                     child: SingleChildScrollView(
-                      // Ponemos BouncingScrollPhysics para que se sienta nativo en iOS
                       physics: const BouncingScrollPhysics(),
                       child: Text(
-                        "Esta deliciosa opción está preparada con carne 100% Angus importada, seleccionada cuidadosamente para garantizar la mejor calidad. \n\nAcompañada de queso cheddar fundido artesanalmente que se derrite en tu boca, cebolla caramelizada cocinada a fuego lento durante 4 horas para obtener ese dulzor natural perfecto, y nuestra salsa secreta de la casa con un toque ahumado que no encontrarás en ningún otro lugar.\n\nTodo esto servido en un pan brioche horneado el mismo día, suave y dorado. ¡Una experiencia que tienes que probar para creer!",
+                        "Disfruta de la auténtica experiencia italiana con nuestra masa madre fermentada por 48 horas, crujiente por fuera y suave por dentro. \n\nBañada en nuestra salsa secreta de tomates San Marzano y cubierta generosamente con queso mozzarella premium que se derrite a la perfección. Cada ingrediente ha sido seleccionado fresco del mercado local para garantizar el sabor más intenso en cada mordida. \n\n¡Perfecta para compartir o disfrutar solo!",
                         style: TextStyle(color: Colors.grey[600], height: 1.6, fontSize: 15),
                       ),
                     ),
                   ),
                   
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
 
-                  // --- ELEMENTO FIJO INFERIOR (El Botón) ---
-                  // Al estar después del Expanded, este botón siempre se dibujará
-                  // pegado al fondo del contenedor padre.
+                  // ---------------------------------------------------------
+                  // 3. BOTÓN DE ACCIÓN (Rojo Intenso)
+                  // ---------------------------------------------------------
                   SafeArea(
-                    top: false, // Solo nos importa el safe area de abajo (para iPhone X+)
+                    top: false,
                     child: SizedBox(
                       width: double.infinity,
                       height: 55,
                       child: ElevatedButton(
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
+                          backgroundColor: kPrimaryColor, // Botón ROJO
                           foregroundColor: Colors.white,
-                          elevation: 5,
-                          shadowColor: Colors.deepPurple.withValues(alpha: 0.4),
+                          elevation: 8,
+                          shadowColor: kPrimaryColor.withValues(alpha: 0.4), // Sombra roja brillante
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                         ),
-                        child: const Text(
-                          "Añadir al Carrito",
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.shopping_bag_outlined, color: Colors.white),
+                            SizedBox(width: 10),
+                            Text(
+                              "Añadir al Carrito",
+                              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -204,6 +227,8 @@ class ProductDetailScreen extends StatelessWidget {
   }
 }
 
+// --- WIDGETS AUXILIARES ---
+
 class _NutriInfo extends StatelessWidget {
   final String label;
   final String value;
@@ -215,10 +240,11 @@ class _NutriInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, size: 20, color: Colors.orange),
-        const SizedBox(height: 4),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-        Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 12)),
+        // Icono en naranja/rojo para combinar
+        Icon(icon, size: 22, color: Colors.orange[800]), 
+        const SizedBox(height: 6),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: kTextColor)),
+        Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -235,13 +261,13 @@ class _CircularButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.2),
+          color: Colors.white.withValues(alpha: 0.25), // Cristal
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
         ),
-        child: Icon(icon, color: Colors.white, size: 20),
+        child: Icon(icon, color: Colors.white, size: 22),
       ),
     );
   }
