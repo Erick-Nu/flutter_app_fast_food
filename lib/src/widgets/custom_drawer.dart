@@ -1,101 +1,185 @@
 import 'package:flutter/material.dart';
 
+// Definimos los colores aquí para que el widget sea independiente
+const Color kPrimaryColor = Color(0xFFD32F2F);
+const Color kTextColor = Color(0xFF333333);
+
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      // Le damos bordes redondeados al drawer para un toque moderno
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(30),
           bottomRight: Radius.circular(30),
         ),
       ),
-      child: ListView(
-        // removePadding elimina el espacio blanco superior por defecto
-        padding: EdgeInsets.zero,
+      child: Column( 
         children: [
-          // 1. CABECERA DEL USUARIO (UserAccountsDrawerHeader)
-          UserAccountsDrawerHeader(
+          // 1. CABECERA PERSONALIZADA (Header)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
             decoration: const BoxDecoration(
-              color: Colors.deepPurple,
-              image: DecorationImage(
-                image: NetworkImage(
-                  'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=600&auto=format&fit=crop',
+              gradient: LinearGradient(
+                colors: [kPrimaryColor, Color(0xFFB71C1C)], // Gradiente Rojo
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.only(
+                bottomRight: Radius.circular(30),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Avatar con borde
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const CircleAvatar(
+                    radius: 35,
+                    backgroundImage: NetworkImage(
+                      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=200&auto=format&fit=crop',
+                    ),
+                  ),
                 ),
-                fit: BoxFit.cover,
-                opacity: 0.8, // Oscurece un poco la imagen de fondo
-              ),
-            ),
-            accountName: const Text(
-              "Erick Nu",
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-            ),
-            accountEmail: const Text("erick@fastfood.com"),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Text(
-                "EN",
-                style: TextStyle(fontSize: 24, color: Colors.deepPurple[800]),
-              ),
+                const SizedBox(height: 15),
+                const Text(
+                  "Hola, Erick 👋",
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const Text(
+                  "erick@fastfood.com",
+                  style: TextStyle(color: Colors.white70, fontSize: 14),
+                ),
+              ],
             ),
           ),
 
-          // 2. OPCIONES DEL MENÚ
-          ListTile(
-            leading: const Icon(Icons.receipt_long_outlined, color: Colors.deepPurple),
-            title: const Text('Mis Pedidos'),
-            onTap: () {
-              // Cerrar el drawer antes de navegar
-              Navigator.pop(context);
-            },
+          // 2. LISTA DE OPCIONES
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              children: [
+                _DrawerItem(
+                  icon: Icons.receipt_long_outlined,
+                  text: 'Mis Pedidos',
+                  onTap: () => Navigator.pop(context),
+                ),
+                _DrawerItem(
+                  icon: Icons.local_offer_outlined,
+                  text: 'Cupones',
+                  badge: '2 Nuevos',
+                  onTap: () => Navigator.pop(context),
+                ),
+                _DrawerItem(
+                  icon: Icons.favorite_border,
+                  text: 'Favoritos',
+                  onTap: () => Navigator.pop(context),
+                ),
+                _DrawerItem(
+                  icon: Icons.location_on_outlined,
+                  text: 'Direcciones',
+                  onTap: () => Navigator.pop(context),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Divider(),
+                ),
+                _DrawerItem(
+                  icon: Icons.settings_outlined,
+                  text: 'Configuración',
+                  iconColor: Colors.grey,
+                  onTap: () => Navigator.pop(context),
+                ),
+              ],
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.local_offer_outlined, color: Colors.deepPurple),
-            title: const Text('Cupones & Ofertas'),
-            trailing: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-              decoration: BoxDecoration(
-                color: Colors.redAccent,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Text(
-                'Nuevo',
-                style: TextStyle(color: Colors.white, fontSize: 10),
+
+          // 3. BOTÓN DE SALIDA (Pegado al fondo)
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: InkWell(
+              onTap: () {
+                // Lógica de cerrar sesión
+              },
+              borderRadius: BorderRadius.circular(15),
+              child: Container(
+                padding: const EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.logout, color: kPrimaryColor),
+                    SizedBox(width: 10),
+                    Text(
+                      "Cerrar Sesión",
+                      style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
             ),
-            onTap: () {
-              Navigator.pop(context);
-            },
           ),
-          ListTile(
-            leading: const Icon(Icons.favorite_outline, color: Colors.deepPurple),
-            title: const Text('Favoritos'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          
-          const Divider(), // Línea divisoria
-          
-          ListTile(
-            leading: const Icon(Icons.settings_outlined, color: Colors.grey),
-            title: const Text('Configuración'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.grey),
-            title: const Text('Cerrar Sesión'),
-            onTap: () {
-              // Lógica de logout
-            },
-          ),
+          const SizedBox(height: 10), 
         ],
       ),
+    );
+  }
+}
+
+// Widget privado auxiliar para los items
+class _DrawerItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final VoidCallback onTap;
+  final String? badge;
+  final Color iconColor;
+
+  const _DrawerItem({
+    required this.icon,
+    required this.text,
+    required this.onTap,
+    this.badge,
+    this.iconColor = kPrimaryColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: iconColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: iconColor, size: 22),
+      ),
+      title: Text(
+        text,
+        style: const TextStyle(fontWeight: FontWeight.w600, color: kTextColor),
+      ),
+      trailing: badge != null
+          ? Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(badge!, style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+            )
+          : const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
+      onTap: onTap,
     );
   }
 }
