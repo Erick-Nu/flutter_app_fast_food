@@ -1,28 +1,81 @@
 import 'package:flutter/material.dart';
 import '../widgets/food_card.dart';
+import '../widgets/custom_drawer.dart'; // <--- 1. Importa tu nuevo widget
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // AQUÍ ESTÁ EL SCAFFOLD: El widget raíz de la pantalla
     return Scaffold(
-      // 1. EL APPBAR (Arriba)
+      // <--- 2. Agrega la propiedad drawer AQUÍ
+      drawer: const CustomDrawer(), 
+
       appBar: AppBar(
-        title: const Text(
-          'Menú del Día',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        backgroundColor: Colors.deepPurple,
+        elevation: 0,
+        
+        // <--- 3. ELIMINA LA PROPIEDAD 'leading' QUE PUSIMOS ANTES
+        // Al quitarla, Flutter detecta que hay un 'drawer' y pone
+        // automáticamente el icono de hamburguesa que abre el menú.
+        
+        iconTheme: const IconThemeData(color: Colors.white), // Para que el icono del menú sea blanco
+
+        centerTitle: true,
+        title: const Column(
+          children: [
+            Text(
+              'FAST FOOD',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                letterSpacing: 1.5,
+              ),
+            ),
+            Text(
+              'Delicioso & Rápido',
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 10,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          ],
         ),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search),
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined, color: Colors.white),
+                onPressed: () {},
+              ),
+              Positioned(
+                top: 12,
+                right: 12,
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.redAccent,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            ],
           ),
+          const SizedBox(width: 8),
         ],
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(20),
+          ),
+        ),
+        toolbarHeight: 70,
       ),
-
-      // 2. EL BODY (Centro - Contenido Principal)
+      
+      // ... El resto del body y floatingActionButton sigue igual ...
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.count(
@@ -54,13 +107,8 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
-
-      // 3. FLOATING ACTION BUTTON (Botón Flotante - Nueva adición)
-      // El Scaffold se encarga de ponerlo en la esquina inferior derecha automáticamente.
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          debugPrint("Filtrar comida");
-        },
+        onPressed: () {},
         backgroundColor: Colors.deepPurple,
         child: const Icon(Icons.filter_list, color: Colors.white),
       ),
