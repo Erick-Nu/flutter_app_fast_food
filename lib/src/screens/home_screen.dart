@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/food_card.dart';
-import '../widgets/custom_drawer.dart'; // <--- 1. Importa tu nuevo widget
+import '../widgets/custom_drawer.dart';
+import 'product_detail_screen.dart'; // Importamos la pantalla de detalle
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -8,19 +9,14 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // <--- 2. Agrega la propiedad drawer AQUÍ
-      drawer: const CustomDrawer(), 
+      // Menú Lateral (Drawer)
+      drawer: const CustomDrawer(),
 
+      // Barra Superior (AppBar) con Diseño Profesional
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         elevation: 0,
-        
-        // <--- 3. ELIMINA LA PROPIEDAD 'leading' QUE PUSIMOS ANTES
-        // Al quitarla, Flutter detecta que hay un 'drawer' y pone
-        // automáticamente el icono de hamburguesa que abre el menú.
-        
-        iconTheme: const IconThemeData(color: Colors.white), // Para que el icono del menú sea blanco
-
+        iconTheme: const IconThemeData(color: Colors.white),
         centerTitle: true,
         title: const Column(
           children: [
@@ -74,39 +70,104 @@ class HomeScreen extends StatelessWidget {
         ),
         toolbarHeight: 70,
       ),
-      
-      // ... El resto del body y floatingActionButton sigue igual ...
+
+      // Cuerpo Principal (Grid de Productos)
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.count(
-          crossAxisCount: 2,
+          crossAxisCount: 2, // Dos columnas
           mainAxisSpacing: 16,
           crossAxisSpacing: 16,
-          childAspectRatio: 0.75,
-          children: const [
-            FoodCard(
-              title: 'Hamburguesa',
-              price: '\$5.50',
-              imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60',
+          childAspectRatio: 0.75, // Proporción de las tarjetas
+          children: [
+            // --- PRODUCTO 1: Hamburguesa ---
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProductDetailScreen(
+                      title: 'Hamburguesa',
+                      price: '\$5.50',
+                      imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60',
+                    ),
+                  ),
+                );
+              },
+              child: const FoodCard(
+                title: 'Hamburguesa',
+                price: '\$5.50',
+                imageUrl: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=500&q=60',
+              ),
             ),
-            FoodCard(
-              title: 'Pizza',
-              price: '\$12.00',
-              imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=60',
+
+            // --- PRODUCTO 2: Pizza ---
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProductDetailScreen(
+                      title: 'Pizza Familiar',
+                      price: '\$12.00',
+                      imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=60',
+                    ),
+                  ),
+                );
+              },
+              child: const FoodCard(
+                title: 'Pizza Familiar',
+                price: '\$12.00',
+                imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=500&q=60',
+              ),
             ),
-            FoodCard(
-              title: 'Refresco',
-              price: '\$1.50',
-              imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=60',
+
+            // --- PRODUCTO 3: Refresco ---
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProductDetailScreen(
+                      title: 'Refresco',
+                      price: '\$1.50',
+                      imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=60',
+                    ),
+                  ),
+                );
+              },
+              child: const FoodCard(
+                title: 'Refresco',
+                price: '\$1.50',
+                imageUrl: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&w=500&q=60',
+              ),
             ),
-            FoodCard(
-              title: 'Papas Fritas',
-              price: '\$3.50',
-              imageUrl: 'https://images.unsplash.com/photo-1630384031162-91847a68521e?auto=format&fit=crop&w=500&q=60',
+
+            // --- PRODUCTO 4: Papas Fritas ---
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const ProductDetailScreen(
+                      title: 'Papas Fritas',
+                      price: '\$3.50',
+                      imageUrl: 'https://images.unsplash.com/photo-1630384031162-91847a68521e?auto=format&fit=crop&w=500&q=60',
+                    ),
+                  ),
+                );
+              },
+              child: const FoodCard(
+                title: 'Papas Fritas',
+                price: '\$3.50',
+                imageUrl: 'https://images.unsplash.com/photo-1630384031162-91847a68521e?auto=format&fit=crop&w=500&q=60',
+              ),
             ),
           ],
         ),
       ),
+
+      // Botón Flotante (Filtro)
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         backgroundColor: Colors.deepPurple,
