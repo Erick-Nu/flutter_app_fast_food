@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'home_screen.dart';
 import 'cart_screen.dart';
+import 'orders_screen.dart'; // <--- 1. Importa la nueva pantalla
 import 'profile_screen.dart';
 
 class BaseScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class _BaseScreenState extends State<BaseScreen> {
 
   static const List<Widget> _screens = <Widget>[
     HomeScreen(),
+    OrdersScreen(), // <--- 2. Agrega la pantalla aquí (en la posición 1)
     CartScreen(),
     ProfileScreen(),
   ];
@@ -32,31 +34,32 @@ class _BaseScreenState extends State<BaseScreen> {
       
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
-          // Texto más pequeño para que quepa en 50px
           labelTextStyle: WidgetStateProperty.all(
             const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
           ),
-          // Iconos ligeramente reducidos
           iconTheme: WidgetStateProperty.all(
             const IconThemeData(size: 22),
           ),
         ),
         child: NavigationBar(
-          height: 60, // Altura compacta
+          height: 60, // Aumenté un poco a 60px para que quepan 4 items cómodamente
           selectedIndex: _selectedIndex,
           onDestinationSelected: _onItemTapped,
-          
-          // Corrección: Usamos withValues en lugar de withOpacity
-          indicatorColor: Colors.deepPurple.withAlpha(25),
-          
-          // Muestra siempre el texto (puedes cambiar a onlyShowSelected si prefieres)
+          indicatorColor: Colors.deepPurple.withValues(alpha: 0.2),
           labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
           
+          // 3. Define los 4 destinos
           destinations: const <Widget>[
             NavigationDestination(
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: 'Inicio',
+            ),
+            // NUEVO DESTINO
+            NavigationDestination(
+              icon: Icon(Icons.receipt_long_outlined),
+              selectedIcon: Icon(Icons.receipt_long),
+              label: 'Pedidos',
             ),
             NavigationDestination(
               icon: Icon(Icons.shopping_cart_outlined),
