@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui'; 
+import 'dart:ui';
 import '../widgets/food_card.dart';
 
-// --- COLORES MEJORADOS ---
 const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kPrimaryDark = Color(0xFFB71C1C);
-const Color kAccentColor = Color(0xFFE57373); // Un rojo más claro para los círculos
-const Color kBackgroundColor = Color(0xFFF5F5F7); // Gris muy suave, más moderno
+const Color kAccentColor = Color(0xFFE57373);
+const Color kBackgroundColor = Color(0xFFF5F5F7);
 const Color kTextColor = Color(0xFF1F1F1F);
 
 class DessertsScreen extends StatelessWidget {
@@ -15,7 +14,6 @@ class DessertsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Datos de ejemplo
     final List<Map<String, dynamic>> desserts = [
       {
         "title": "Tiramisú Real",
@@ -49,29 +47,23 @@ class DessertsScreen extends StatelessWidget {
       },
     ];
 
-    return Scaffold(
+    return Scaffold( // Widget: Scaffold — Uso: Contenedor principal con CustomScrollView.
       backgroundColor: kBackgroundColor,
       body: CustomScrollView(
+        // Widget: CustomScrollView — Uso: Contenedor con Slivers para cabecera y grid.
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // ---------------------------------------------------------
-          // 1. APPBAR REDISEÑADO (Más compacto y con decoración)
-          // ---------------------------------------------------------
-          SliverAppBar(
+          SliverAppBar( // Widget: SliverAppBar — Uso: Cabecera flexible con título y acciones.
             systemOverlayStyle: SystemUiOverlayStyle.light,
             backgroundColor: kPrimaryColor,
-            expandedHeight: 140.0, // REDUCIDO: De 180 a 140 para quitar espacio vacío
+            expandedHeight: 140.0,
             floating: false,
             pinned: true,
             elevation: 0,
-            
-            // Botón Regresar
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Colors.white),
               onPressed: () => Navigator.pop(context),
             ),
-            
-            // Icono de "Me gusta" a la derecha
             actions: [
               IconButton(
                 icon: const Icon(Icons.favorite_border, color: Colors.white),
@@ -79,78 +71,23 @@ class DessertsScreen extends StatelessWidget {
               )
             ],
 
-            flexibleSpace: FlexibleSpaceBar(
+            flexibleSpace: const FlexibleSpaceBar(
               centerTitle: true,
-              titlePadding: const EdgeInsets.only(bottom: 50), // Ajuste fino del texto
-              title: const Text(
+              titlePadding: EdgeInsets.only(bottom: 50),
+              title: Text(
                 "Postres & Dulces",
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 18, // Tamaño más sutil
+                  fontSize: 18,
                   letterSpacing: 0.5,
                 ),
               ),
               background: Stack(
-                children: [
-                  // 1. Fondo Gradiente (Para dar profundidad)
-                  Container(
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [kPrimaryColor, kPrimaryDark],
-                      ),
-                    ),
-                  ),
-                  
-                  // 2. Decoración: Círculo grande translúcido (Arriba Derecha)
-                  // Esto rompe el color plano "feo"
-                  Positioned(
-                    top: -60,
-                    right: -50,
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.1), // Transparencia sutil
-                      ),
-                    ),
-                  ),
-
-                  // 3. Decoración: Círculo pequeño (Abajo Izquierda)
-                  Positioned(
-                    bottom: 20,
-                    left: -30,
-                    child: Container(
-                      width: 140,
-                      height: 140,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.white.withValues(alpha: 0.05),
-                      ),
-                    ),
-                  ),
-
-                  // 4. Decoración: Icono gigante de fondo (Efecto Watermark)
-                  Positioned(
-                    bottom: -20,
-                    right: 40,
-                    child: Transform.rotate(
-                      angle: -0.2, // Ligeramente inclinado
-                      child: Icon(
-                        Icons.cake, 
-                        size: 100, 
-                        color: Colors.white.withValues(alpha: 0.1), // Apenas visible
-                      ),
-                    ),
-                  ),
-                ],
+                children: [],
               ),
             ),
-            
-            // Curva inferior más sutil y limpia
+
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(20),
               child: Container(
@@ -167,15 +104,11 @@ class DessertsScreen extends StatelessWidget {
             ),
           ),
 
-          // ---------------------------------------------------------
-          // 2. BUSCADOR (Mejorado visualmente)
-          // ---------------------------------------------------------
-          SliverToBoxAdapter(
+          SliverToBoxAdapter( // Widget: SliverToBoxAdapter + TextField — Uso: Campo de búsqueda encima del grid.
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
               child: Column(
                 children: [
-                  // Barra de búsqueda con sombra suave
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -192,17 +125,16 @@ class DessertsScreen extends StatelessWidget {
                       decoration: InputDecoration(
                         hintText: "Buscar postre favorito...",
                         hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                        prefixIcon: Icon(Icons.search, color: kPrimaryColor), // Icono rojo
+                        prefixIcon: Icon(Icons.search, color: kPrimaryColor),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(vertical: 15),
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 25),
-                  
-                  // Categorías
-                  SizedBox(
+
+                  SizedBox( // Widget: SizedBox — Uso: Lista horizontal de chips de categoría.
                     height: 40,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
@@ -220,10 +152,7 @@ class DessertsScreen extends StatelessWidget {
             ),
           ),
 
-          // ---------------------------------------------------------
-          // 3. GRID DE PRODUCTOS
-          // ---------------------------------------------------------
-          SliverPadding(
+          SliverPadding( // Widget: SliverGrid — Uso: Grid de `FoodCard` para mostrar postres.
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -244,7 +173,7 @@ class DessertsScreen extends StatelessWidget {
                         child: Opacity(opacity: value, child: child),
                       );
                     },
-                    child: FoodCard(
+                    child: FoodCard( // Widget: FoodCard — Uso: Tarjeta individual de producto en el grid.
                       title: desserts[index]["title"],
                       price: desserts[index]["price"],
                       imageUrl: desserts[index]["image"],
@@ -255,8 +184,7 @@ class DessertsScreen extends StatelessWidget {
               ),
             ),
           ),
-          
-          // Espacio extra al final para scroll
+
           const SliverToBoxAdapter(child: SizedBox(height: 50)),
         ],
       ),
@@ -276,7 +204,6 @@ class DessertsScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: isSelected ? kPrimaryColor : Colors.white,
               borderRadius: BorderRadius.circular(20),
-              // Borde sutil si no está seleccionado
               border: isSelected ? null : Border.all(color: Colors.grey.shade300, width: 1),
             ),
             child: Center(
@@ -295,3 +222,11 @@ class DessertsScreen extends StatelessWidget {
     );
   }
 }
+
+// Widget: Scaffold — Uso: Contenedor principal con CustomScrollView.
+// Widget: AppBar (SliverAppBar) — Uso: Cabecera flexible con título y acciones.
+// Widget: Stack — Uso: Superposición de decoraciones y elementos de fondo.
+// Widget: Container — Uso: Fondos, chips y campos de búsqueda con estilo.
+// Widget: ListView — Uso: Lista horizontal de categorías.
+// Widget: GridView — Uso: Grid (SliverGrid) para mostrar productos.
+// Widget: TextField — Uso: Campo de búsqueda para filtrar postres.

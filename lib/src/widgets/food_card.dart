@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 
-// Definimos los colores aquí para que el widget sea independiente
-const Color kPrimaryColor = Color(0xFFD32F2F); 
+const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kTextColor = Color(0xFF333333);
 
 class FoodCard extends StatelessWidget {
   final String title;
   final String price;
-  final String imageUrl; // Acepta URL de internet o ruta de asset local
+  final String imageUrl;
 
   const FoodCard({
     super.key,
@@ -18,14 +17,12 @@ class FoodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Detectamos si es imagen de red o local
     final isNetworkImage = imageUrl.startsWith('http');
 
-    return Container(
+    return Container( // Widget: Container — Uso: Tarjeta principal con borde y sombra.
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        // Sombra suave estilo "Premium"
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -37,8 +34,7 @@ class FoodCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // 1. IMAGEN (Con bordes redondeados solo arriba)
-          Expanded(
+          Expanded( // Widget: Expanded — Uso: La imagen ocupa el espacio disponible dentro de la tarjeta.
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               child: isNetworkImage
@@ -74,8 +70,7 @@ class FoodCard extends StatelessWidget {
             ),
           ),
 
-          // 2. INFORMACIÓN
-          Padding(
+          Padding( // Widget: Padding — Uso: Espaciado interno para título, precio y botón.
             padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,14 +90,13 @@ class FoodCard extends StatelessWidget {
                   price,
                   style: const TextStyle(
                     fontSize: 16,
-                    fontWeight: FontWeight.w900, // Precio destacado
-                    color: kPrimaryColor, // Rojo marca
+                    fontWeight: FontWeight.w900,
+                    color: kPrimaryColor,
                   ),
                 ),
                 const SizedBox(height: 10),
-                
-                // Botón "Agregar" moderno
-                SizedBox(
+
+                SizedBox( // Widget: SizedBox — Uso: Control de altura del botón 'Agregar'.
                   height: 35,
                   child: ElevatedButton(
                     onPressed: () {},
@@ -110,15 +104,10 @@ class FoodCard extends StatelessWidget {
                       backgroundColor: kPrimaryColor,
                       foregroundColor: Colors.white,
                       elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      padding: EdgeInsets.zero, // Para que quepa bien en espacios pequeños
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      padding: EdgeInsets.zero,
                     ),
-                    child: const Text(
-                      'Agregar',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                    ),
+                    child: const Text('Agregar', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
                   ),
                 ),
               ],
@@ -129,3 +118,10 @@ class FoodCard extends StatelessWidget {
     );
   }
 }
+
+// Widget: Container — Uso: Tarjeta principal con borde y sombra.
+// Widget: Column / Row — Uso: Organización vertical de imagen e información.
+// Widget: Expanded / Flexible — Uso: La imagen ocupa el espacio disponible dentro de la tarjeta.
+// Widget: Padding, Center, Align — Uso: Separación y centrado de indicadores de carga.
+// Widget: SizedBox — Uso: Control de altura del botón y espacios entre elementos.
+// Widget: ElevatedButton — Uso: Botón 'Agregar' para añadir el producto al carrito.

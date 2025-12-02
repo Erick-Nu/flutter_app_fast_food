@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-// --- COLORES DE LA MARCA ---
 const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kBackgroundColor = Color(0xFFF2F2F2);
 const Color kTextColor = Color(0xFF333333);
@@ -11,7 +10,6 @@ class OrdersScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Datos simulados
     final List<Map<String, dynamic>> orders = [
       {
         "id": "#ORD-2045",
@@ -42,26 +40,23 @@ class OrdersScreen extends StatelessWidget {
       },
     ];
 
-    return Scaffold(
+    return Scaffold( // Widget: Scaffold — Uso: Estructura principal que contiene un CustomScrollView con Slivers.
       backgroundColor: kBackgroundColor,
-      // Usamos CustomScrollView para igualar el diseño de DessertsScreen
       body: CustomScrollView(
+        // Widget: CustomScrollView — Uso: Contenedor con slivers para listas desplazables.
         physics: const BouncingScrollPhysics(),
         slivers: [
-          // 1. APPBAR ROJO PROFESIONAL
-          SliverAppBar(
+          SliverAppBar( // Widget: SliverAppBar — Uso: Barra superior con título y comportamiento flexible.
             systemOverlayStyle: SystemUiOverlayStyle.light,
-            expandedHeight: 100.0, // Altura compacta pero elegante
+            expandedHeight: 100.0,
             floating: false,
             pinned: true,
             backgroundColor: kPrimaryColor,
             elevation: 0,
-            
-            // Título Flexible
-            flexibleSpace: FlexibleSpaceBar(
+            flexibleSpace: const FlexibleSpaceBar(
               centerTitle: true,
-              titlePadding: const EdgeInsets.only(bottom: 16),
-              title: const Text(
+              titlePadding: EdgeInsets.only(bottom: 16),
+              title: Text(
                 'Mis Pedidos',
                 style: TextStyle(
                   color: Colors.white,
@@ -70,15 +65,12 @@ class OrdersScreen extends StatelessWidget {
                 ),
               ),
             ),
-            
-            // Bordes Redondeados Inferiores
             shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
+              borderRadius: BorderRadius.vertical(bottom: Radius.circular(0)),
             ),
           ),
 
-          // 2. LISTA DE PEDIDOS
-          SliverPadding(
+          SliverPadding( // Widget: SliverPadding + SliverList — Uso: Lista de pedidos en formato sliver.
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildBuilderDelegate(
@@ -95,7 +87,6 @@ class OrdersScreen extends StatelessWidget {
   }
 }
 
-// --- TARJETA DE PEDIDO MEJORADA ---
 class _OrderCard extends StatelessWidget {
   final Map<String, dynamic> order;
 
@@ -103,12 +94,11 @@ class _OrderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20), // Separación entre tarjetas
+    return Container( // Widget: Container — Uso: Tarjeta decorativa para cada pedido.
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        // Sombra suave idéntica a las otras pantallas
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -119,14 +109,12 @@ class _OrderCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // 1. INFORMACIÓN PRINCIPAL
-          Padding(
+          Padding( // Widget: Padding — Uso: Espaciado interno alrededor del contenido de la tarjeta.
             padding: const EdgeInsets.all(16),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Imagen con manejo de errores
-                ClipRRect(
+                ClipRRect( // Widget: ClipRRect — Uso: Redondea la imagen de miniatura del pedido.
                   borderRadius: BorderRadius.circular(15),
                   child: Image.network(
                     order["imageUrl"],
@@ -137,7 +125,7 @@ class _OrderCard extends StatelessWidget {
                       if (loadingProgress == null) return child;
                       return Container(
                         width: 70, height: 70, color: Colors.grey[100],
-                        child: const Center(child: Icon(Icons.image, size: 20, color: Colors.grey))
+                        child: const Center(child: Icon(Icons.image, size: 20, color: Colors.grey)),
                       );
                     },
                     errorBuilder: (context, error, stackTrace) {
@@ -148,11 +136,10 @@ class _OrderCard extends StatelessWidget {
                     },
                   ),
                 ),
-                
+
                 const SizedBox(width: 15),
-                
-                // Textos
-                Expanded(
+
+                Expanded( // Widget: Expanded — Uso: Hace que la columna de texto ocupe el espacio disponible.
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -177,7 +164,6 @@ class _OrderCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 10),
-                      // Chip de Estado
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
@@ -200,10 +186,8 @@ class _OrderCard extends StatelessWidget {
             ),
           ),
 
-          // Línea divisoria
           Divider(height: 1, color: Colors.grey[100]),
 
-          // 2. PIE DE TARJETA (Total y Botón)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -216,22 +200,21 @@ class _OrderCard extends StatelessWidget {
                     Text(
                       order["total"],
                       style: const TextStyle(
-                        fontSize: 18, 
-                        fontWeight: FontWeight.w900, // Precio destacado
-                        color: kPrimaryColor // Rojo Marca
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: kPrimaryColor,
                       ),
                     ),
                   ],
                 ),
 
-                // Botón "Repetir" actualizado al tema rojo
                 SizedBox(
                   height: 38,
                   child: ElevatedButton.icon(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: kPrimaryColor.withValues(alpha: 0.08), // Fondo rojo muy suave
-                      foregroundColor: kPrimaryColor, // Texto e icono rojos
+                      backgroundColor: kPrimaryColor.withValues(alpha: 0.08),
+                      foregroundColor: kPrimaryColor,
                       elevation: 0,
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -248,3 +231,10 @@ class _OrderCard extends StatelessWidget {
     );
   }
 }
+
+// Widget: Scaffold — Uso: Estructura principal que contiene un CustomScrollView con Slivers.
+// Widget: AppBar (SliverAppBar) — Uso: Barra superior con título y comportamiento flexible.
+// Widget: Column / Row — Uso: Organización vertical y horizontal dentro de las tarjetas.
+// Widget: Container — Uso: Contenedores decorativos para cada tarjeta de pedido.
+// Widget: Padding — Uso: Separación interna alrededor de elementos en la tarjeta.
+// Widget: SizedBox — Uso: Espacios fijos entre elementos.

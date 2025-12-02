@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-// --- COLORES DE LA MARCA ---
-const Color kPrimaryColor = Color(0xFFD32F2F); // Rojo Pizzería
+const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kTextColor = Color(0xFF333333);
 const Color kWhiteColor = Colors.white;
 
@@ -21,21 +20,17 @@ class ProductDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      extendBodyBehindAppBar: true, 
+    return Scaffold( // Widget: Scaffold — Uso: Contenedor principal que aloja la imagen y el panel de detalle.
+      extendBodyBehindAppBar: true,
       body: Column(
         children: [
-          // ---------------------------------------------------------
-          // 1. IMAGEN HERO CON BOTONES (Parte Superior)
-          // ---------------------------------------------------------
-          SizedBox(
+          SizedBox( // Widget: SizedBox — Uso: Contenedor de altura fija para la imagen superior.
             height: size.height * 0.45,
             child: Stack(
               children: [
-                // Fondo: Imagen
-                Positioned.fill(
+                Positioned.fill( // Widget: Positioned.fill + Hero — Uso: Imagen hero que ocupa la zona superior.
                   child: Hero(
-                    tag: title, // Animación suave
+                    tag: title,
                     child: Image.network(
                       imageUrl,
                       fit: BoxFit.cover,
@@ -45,8 +40,7 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                
-                // Capa: Gradiente para que los botones se vean
+
                 Positioned.fill(
                   child: Container(
                     decoration: BoxDecoration(
@@ -54,9 +48,9 @@ class ProductDetailScreen extends StatelessWidget {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          Colors.black.withValues(alpha: 0.6), // Oscuro arriba
+                          Colors.black.withValues(alpha: 0.6),
                           Colors.transparent,
-                          Colors.black.withValues(alpha: 0.2), // Sutil abajo
+                          Colors.black.withValues(alpha: 0.2),
                         ],
                         stops: const [0.0, 0.4, 1.0],
                       ),
@@ -64,9 +58,9 @@ class ProductDetailScreen extends StatelessWidget {
                   ),
                 ),
 
-                // Botones Flotantes (Atrás y Favorito)
-                SafeArea(
+                SafeArea( // Widget: SafeArea — Uso: Protege los botones flotantes del área de notch/status bar.
                   child: Padding(
+                    // Widget: Padding — Uso: Espacio alrededor de la fila de botones (back, favorite).
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,40 +80,35 @@ class ProductDetailScreen extends StatelessWidget {
               ],
             ),
           ),
-          
-          // ---------------------------------------------------------
-          // 2. PANEL DE INFORMACIÓN (Blanco y Curvo)
-          // ---------------------------------------------------------
-          Expanded(
+
+          Expanded( // Widget: Expanded — Uso: Panel de detalle que ocupa el espacio restante.
             child: Container(
+              // Widget: Container — Uso: Panel blanco con borde redondeado que contiene la info del producto.
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
               width: double.infinity,
               decoration: const BoxDecoration(
                 color: kWhiteColor,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(30)), 
+                borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                 boxShadow: [
                   BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -5))
                 ],
               ),
-              // Subimos el panel 30px para tapar ligeramente la imagen
               transform: Matrix4.translationValues(0, -30, 0),
-              
+
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Barra gris para indicar "deslizable" visualmente
                   Center(
                     child: Container(
                       width: 50, height: 5,
                       margin: const EdgeInsets.only(top: 10, bottom: 20),
                       decoration: BoxDecoration(
-                        color: Colors.grey[300], 
+                        color: Colors.grey[300],
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
-                  
-                  // Título y Precio
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -136,21 +125,20 @@ class ProductDetailScreen extends StatelessWidget {
                       Text(
                         price,
                         style: const TextStyle(
-                          fontSize: 26, 
-                          fontWeight: FontWeight.w900, 
-                          color: kPrimaryColor // Precio en ROJO
+                          fontSize: 26,
+                          fontWeight: FontWeight.w900,
+                          color: kPrimaryColor,
                         ),
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 25),
 
-                  // Barra Nutricional (Datos de la Pizza)
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
                     decoration: BoxDecoration(
-                      color: Colors.grey[50], // Fondo muy suave
+                      color: Colors.grey[50],
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(color: Colors.grey[200]!),
                     ),
@@ -164,16 +152,15 @@ class ProductDetailScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  
+
                   const SizedBox(height: 25),
-                  
+
                   Text(
                     "Ingredientes & Detalles",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[800]),
                   ),
                   const SizedBox(height: 10),
 
-                  // Descripción con Scroll (Expanded)
                   Expanded(
                     child: SingleChildScrollView(
                       physics: const BouncingScrollPhysics(),
@@ -183,24 +170,21 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
 
-                  // ---------------------------------------------------------
-                  // 3. BOTÓN DE ACCIÓN (Rojo Intenso)
-                  // ---------------------------------------------------------
-                  SafeArea(
+                  SafeArea( // Widget: SafeArea — Uso: Protege el botón de acción inferior en dispositivos con gestos.
                     top: false,
                     child: SizedBox(
                       width: double.infinity,
                       height: 55,
-                      child: ElevatedButton(
+                      child: ElevatedButton( // Widget: ElevatedButton — Uso: Botón principal para 'Añadir al Carrito'.
                         onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: kPrimaryColor, // Botón ROJO
+                          backgroundColor: kPrimaryColor,
                           foregroundColor: Colors.white,
                           elevation: 8,
-                          shadowColor: kPrimaryColor.withValues(alpha: 0.4), // Sombra roja brillante
+                          shadowColor: kPrimaryColor.withValues(alpha: 0.4),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                         ),
                         child: Row(
@@ -227,8 +211,6 @@ class ProductDetailScreen extends StatelessWidget {
   }
 }
 
-// --- WIDGETS AUXILIARES ---
-
 class _NutriInfo extends StatelessWidget {
   final String label;
   final String value;
@@ -240,8 +222,7 @@ class _NutriInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Icono en naranja/rojo para combinar
-        Icon(icon, size: 22, color: Colors.orange[800]), 
+        Icon(icon, size: 22, color: Colors.orange[800]),
         const SizedBox(height: 6),
         Text(value, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: kTextColor)),
         Text(label, style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.w500)),
@@ -263,7 +244,7 @@ class _CircularButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.25), // Cristal
+          color: Colors.white.withValues(alpha: 0.25),
           shape: BoxShape.circle,
           border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
         ),
@@ -272,3 +253,12 @@ class _CircularButton extends StatelessWidget {
     );
   }
 }
+
+// Widget: Scaffold — Uso: Contenedor principal que aloja la imagen y el panel de detalle.
+// Widget: Column / Row — Uso: Organiza la disposición vertical y horizontal de contenidos.
+// Widget: Stack — Uso: Superpone imagen de fondo, gradiente y botones flotantes.
+// Widget: Expanded / Flexible — Uso: Hace que el panel de información ocupe el espacio restante.
+// Widget: Container — Uso: Paneles decorativos y contenedores con padding y borde.
+// Widget: Padding, Center, Align — Uso: Alineación y separación de elementos visuales.
+// Widget: SizedBox — Uso: Control de espacios y tamaños fijos para imagen y botones.
+// Widget: ElevatedButton — Uso: Botón de acción para añadir al carrito.
