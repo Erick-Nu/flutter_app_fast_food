@@ -29,7 +29,7 @@ class ProductProvider extends ChangeNotifier {
       logger.i('Productos cargados en Provider: ${_products.length}');
       
     } catch (e) {
-      _errorMessage = 'No se pudieron cargar las pizzas 😢';
+      _errorMessage = 'No se pudieron cargar las pizzas';
       logger.e('Error en Provider', error: e);
     } finally {
       _isLoading = false;

@@ -7,7 +7,7 @@ final logger = Logger(
     errorMethodCount: 5, // Cuántas líneas mostrar si hay error
     lineLength: 50, // Ancho de la línea
     colors: true, // Colores en consola (iOS/Android/VSCode)
-    printEmojis: true, // Emojis 😎
+    printEmojis: true, // Emojis
     dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
   ),
 );

@@ -44,7 +44,7 @@ class CustomDrawer extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 15),
-                const Text("Hola, Erick 👋", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                const Text("Hola, Erick", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
                 const Text("erick@fastfood.com", style: TextStyle(color: Colors.white70, fontSize: 14)),
               ],
             ),

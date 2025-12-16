@@ -40,7 +40,7 @@ class AuthProvider extends ChangeNotifier {
       return true; // Éxito
     } catch (e) {
       logger.e('Error en Login', error: e);
-      _errorMessage = 'Credenciales incorrectas 🚫';
+      _errorMessage = 'Credenciales incorrectas';
       return false; // Falló
     } finally {
       _isLoading = false;
@@ -59,7 +59,7 @@ class AuthProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       logger.e('Error en Registro', error: e);
-      _errorMessage = 'No se pudo crear la cuenta ⚠️';
+      _errorMessage = 'No se pudo crear la cuenta';
       return false;
     } finally {
       _isLoading = false;

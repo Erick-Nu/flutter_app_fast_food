@@ -1,6 +1,8 @@
 import '../../../core/config/supabase_client.dart';
 import '../../../core/utils/logger.dart';
 import '../domain/entities/cart_item.dart';
+import 'models/order_model.dart';
+import 'models/order_detail_model.dart';
 
 class OrderRepository {
   // Guardar un pedido completo
@@ -49,6 +51,42 @@ class OrderRepository {
     } catch (e) {
       logger.e('Error creando pedido', error: e);
       return false;
+    }
+  }
+
+  Future<List<OrderModel>> getOrders(String userId) async {
+    try {
+      final response = await SupabaseConfig.client
+          .from('pedidos')
+          .select()
+          .eq('usuario_id', userId)
+          .order('fecha', ascending: false); // Los más recientes primero
+
+      // Convertimos la lista de mapas a lista de objetos
+      final List<dynamic> data = response;
+      return data.map((json) => OrderModel.fromJson(json)).toList();
+      
+    } catch (e) {
+      logger.e('Error obteniendo pedidos', error: e);
+      return []; // Si falla, devolvemos lista vacía
+    }
+  }
+
+  Future<List<OrderDetailModel>> getOrderDetails(String orderId) async {
+    try {
+      // Magia de Supabase: '*, productos(*)' significa:
+      // "Traeme todo de detalle_pedido Y todo de la tabla productos relacionada"
+      final response = await SupabaseConfig.client
+          .from('detalle_pedido')
+          .select('*, productos(*)') 
+          .eq('pedido_id', orderId);
+
+      final List<dynamic> data = response;
+      return data.map((json) => OrderDetailModel.fromJson(json)).toList();
+
+    } catch (e) {
+      logger.e('Error obteniendo detalles del pedido', error: e);
+      return [];
     }
   }
 }

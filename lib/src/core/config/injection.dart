@@ -15,7 +15,7 @@ Future<void> initInjection() async {
   sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl());
   sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(remoteDataSource: sl()));
 
-  // 2. Feature: Auth (NUEVO BLOQUE) 🔐
+  // 2. Feature: Auth (NUEVO BLOQUE)
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl());
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl()));
 }

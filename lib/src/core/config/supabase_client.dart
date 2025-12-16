@@ -9,7 +9,7 @@ class SupabaseConfig {
       final anonKey = dotenv.env['SUPABASE_ANON_KEY'] ?? '';
 
       if (url.isEmpty || anonKey.isEmpty) {
-        throw Exception('⚠️ Faltan variables de entorno en .env');
+        throw Exception('Faltan variables de entorno en .env');
       }
 
       await Supabase.initialize(
@@ -19,14 +19,14 @@ class SupabaseConfig {
 
       // 2. Usamos el logger para un mensaje de ÉXITO (Info) ℹ️
       logger.i(
-        'SUPABASE INICIALIZADO CORRECTAMENTE 🚀\n'
+        'SUPABASE INICIALIZADO CORRECTAMENTE\n'
         'URL: $url'
       );
 
     } catch (e) {
-      // 3. Usamos el logger para un mensaje de ERROR (Fatal/Error) 💀
+      // 3. Usamos el logger para un mensaje de ERROR (Fatal/Error)
       logger.e(
-        'ERROR CRÍTICO AL CONECTAR SUPABASE ❌', 
+        'ERROR CRÍTICO AL CONECTAR SUPABASE', 
         error: e, // Pasamos el objeto error para que imprima detalles
       );
       rethrow; 

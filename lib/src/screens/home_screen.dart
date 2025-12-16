@@ -198,7 +198,7 @@ class HomeScreen extends StatelessWidget {
                         return Center(child: Text(provider.errorMessage!, style: const TextStyle(color: Colors.red)));
                       }
                       if (provider.products.isEmpty) {
-                        return const Center(child: Text("No hay pizzas disponibles hoy 😢"));
+                        return const Center(child: Text("No hay pizzas disponibles hoy"));
                       }
 
                       return ListView.builder(
@@ -229,7 +229,7 @@ class HomeScreen extends StatelessWidget {
                                 Provider.of<CartProvider>(context, listen: false).addToCart(pizza);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("¡${pizza.name} agregada! 🍕"),
+                                    content: Text("¡\${pizza.name} agregada!"),
                                     duration: const Duration(seconds: 1),
                                     backgroundColor: Colors.green,
                                   ),
