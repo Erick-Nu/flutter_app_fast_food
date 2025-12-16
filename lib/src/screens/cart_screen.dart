@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/cart/presentation/providers/cart_provider.dart';
-import '../widgets/cart_item.dart'; // Tu widget personalizado
-import 'base_screen.dart'; // <--- IMPORTANTE: Para recuperar la barra de navegación
+import '../widgets/cart_item.dart'; 
+import 'base_screen.dart'; 
+import '../features/auth/presentation/providers/auth_provider.dart'; // <--- 1. IMPORTANTE: Para el ID de usuario
 
 // --- COLORES ---
 const Color kPrimaryColor = Color(0xFFD32F2F);
@@ -15,6 +16,7 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context); // <--- 2. Obtenemos el usuario
     
     // Costo de envío simulado
     const double deliveryFee = 2.50;
@@ -88,13 +90,11 @@ class CartScreen extends StatelessWidget {
                         ),
                       ),
 
-                      // LISTA DE PRODUCTOS USANDO TU WIDGET
+                      // LISTA DE PRODUCTOS
                       SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
                             final item = cart.items[index];
-                            
-                            // Envuelto en Dismissible para poder borrar deslizando
                             return Dismissible(
                               key: Key(item.product.id),
                               direction: DismissDirection.endToStart,
@@ -184,20 +184,62 @@ class CartScreen extends StatelessWidget {
                             shadowColor: kPrimaryColor.withOpacity(0.4),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                           ),
-                          onPressed: () {
-                            print("Enviando pedido a Supabase...");
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Procesando pago... 💳"), backgroundColor: Colors.black87),
-                            );
-                          },
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text("Confirmar Pedido", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                              SizedBox(width: 10),
-                              Icon(Icons.arrow_forward_rounded, size: 20),
-                            ],
-                          ),
+                          
+                          // --- 3. LÓGICA DE ENVÍO CONECTADA ---
+                          onPressed: cart.isProcessing 
+                            ? null // Bloquear si está cargando
+                            : () async {
+                                // A. Verificar login
+                                if (!authProvider.isAuth) {
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                     const SnackBar(content: Text("Debes iniciar sesión para pedir 🔒"), backgroundColor: Colors.orange),
+                                   );
+                                   return;
+                                }
+
+                                // B. Enviar Pedido
+                                final success = await cart.submitOrder(authProvider.currentUser!.id);
+
+                                if (success) {
+                                  // C. Éxito: Navegar al Home y mostrar mensaje
+                                  if (context.mounted) {
+                                     Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(builder: (context) => const BaseScreen()),
+                                        (route) => false,
+                                     );
+                                     
+                                     ScaffoldMessenger.of(context).showSnackBar(
+                                       const SnackBar(
+                                         content: Text("¡Pedido recibido! 👨‍🍳 Cocinando..."), 
+                                         backgroundColor: Colors.green,
+                                         duration: Duration(seconds: 4),
+                                       ),
+                                     );
+                                  }
+                                } else {
+                                  // D. Error
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                       const SnackBar(content: Text("Error al procesar el pedido ❌"), backgroundColor: Colors.red),
+                                    );
+                                  }
+                                }
+                              },
+                          child: cart.isProcessing
+                              ? const SizedBox(
+                                  width: 24, 
+                                  height: 24, 
+                                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                                )
+                              : Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Text("Confirmar Pedido", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                                    SizedBox(width: 10),
+                                    Icon(Icons.arrow_forward_rounded, size: 20),
+                                  ],
+                                ),
                         ),
                       ),
                     ],
@@ -209,9 +251,9 @@ class CartScreen extends StatelessWidget {
   }
 }
 
-// --- WIDGETS AUXILIARES ---
-
-// 1. Estado Vacío (CORREGIDO)
+// ... (Los widgets auxiliares _EmptyCartState, _SummaryRow se mantienen igual) ...
+// Asegúrate de copiar las clases auxiliares del código anterior si no las tienes aquí abajo.
+// Para ahorrar espacio, asumo que ya las tienes en el archivo o las copias del bloque anterior.
 class _EmptyCartState extends StatelessWidget {
   const _EmptyCartState();
 
@@ -235,11 +277,10 @@ class _EmptyCartState extends StatelessWidget {
           Text("¡Agrega algunas pizzas deliciosas!", style: TextStyle(fontSize: 16, color: Colors.grey[600])),
           const SizedBox(height: 30),
           ElevatedButton(
-            // --- FIX: NAVEGACIÓN A BASE SCREEN ---
             onPressed: () {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => const BaseScreen()), // Volvemos al Marco Principal
+                MaterialPageRoute(builder: (context) => const BaseScreen()), 
                 (route) => false,
               );
             },
@@ -257,7 +298,6 @@ class _EmptyCartState extends StatelessWidget {
   }
 }
 
-// 2. Fila de Resumen
 class _SummaryRow extends StatelessWidget {
   final String label;
   final double value;
