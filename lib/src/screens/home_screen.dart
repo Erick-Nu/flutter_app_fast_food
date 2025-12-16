@@ -132,7 +132,7 @@ class HomeScreen extends StatelessWidget {
                           children: [
                             Positioned.fill(
                               child: Image.network(
-                                "https://images.unsplash.com/photo-1593560708920-6316e49b19b5?q=80&w=800&auto=format&fit=crop",
+                                "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=500&auto=format&fit=crop",
                                 fit: BoxFit.cover,
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(color: Colors.grey[300], child: const Icon(Icons.broken_image, size: 50));

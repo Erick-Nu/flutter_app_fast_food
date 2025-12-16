@@ -73,7 +73,7 @@ class CartScreen extends StatelessWidget {
                         child: const CartItem(title: "Hamburguesa Monster", price: "\$8.50", imageUrl: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=200&auto=format&fit=crop", quantity: 2), // Widget: CartItem — Uso: Componente que muestra imagen, nombre, precio y controles de cantidad.
                       ),
 
-                      const CartItem(title: "Papas Supreme", price: "\$4.50", imageUrl: "https://images.unsplash.com/photo-1630384031162-91847a68521e?q=80&w=200&auto=format&fit=crop", quantity: 1), // Widget: CartItem — Uso: Item adicional en la lista del carrito.
+                      const CartItem(title: "Papas Supreme", price: "\$4.50", imageUrl: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=500&auto=format&fit=crop", quantity: 1), // Widget: CartItem — Uso: Item adicional en la lista del carrito.
 
                       Container(
                         margin: const EdgeInsets.symmetric(vertical: 10),

@@ -115,4 +115,3 @@ class _QuantityBtn extends StatelessWidget {
   }
 }
 
-// (Anotaciones trasladadas inline en las líneas donde se usan los widgets.)
