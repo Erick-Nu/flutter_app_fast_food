@@ -1,70 +1,68 @@
 import 'package:flutter/material.dart';
 
-const Color kPrimaryColor = Color(0xFFD32F2F);
-const Color kDarkRed = Color(0xFFB71C1C);
-
 class ProfileHeader extends StatelessWidget {
-  const ProfileHeader({super.key});
+  // Ahora recibimos los datos reales
+  final String name;
+  final String email;
+  final String level;
+
+  const ProfileHeader({
+    super.key,
+    required this.name,
+    required this.email,
+    required this.level,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container( // Widget: Container — Uso: Fondo con gradiente y sombra para el header.
+    return Container(
       width: double.infinity,
-      padding: const EdgeInsets.only(top: 60, bottom: 40),
+      height: 250,
       decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [kPrimaryColor, kDarkRed],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(0)),
-        boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 10, offset: Offset(0, 5))],
+        color: Color(0xFFD32F2F), // kPrimaryColor
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(30)),
       ),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container( // Widget: Container — Uso: Borde y fondo alrededor del avatar.
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              shape: BoxShape.circle,
-            ),
+          const SizedBox(height: 20),
+          // Avatar
+          Container(
+            padding: const EdgeInsets.all(3),
+            decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle),
             child: const CircleAvatar(
-              radius: 55,
-              backgroundImage: NetworkImage('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80'),
+              radius: 40,
+              backgroundImage: NetworkImage("https://i.pravatar.cc/150?img=11"), // Avatar genérico o user.image
             ),
           ),
-          const SizedBox(height: 15),
-
-          const Text(
-            "Erick Nu",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-            ),
+          const SizedBox(height: 10),
+          // Nombre Real
+          Text(
+            name, 
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
           ),
-
-          const SizedBox(height: 8),
-
-          Container( // Widget: Container — Uso: Badge/insignia debajo del nombre (Pizza Master).
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+          // Email
+          Text(
+            email, 
+            style: const TextStyle(fontSize: 14, color: Colors.white70),
+          ),
+          const SizedBox(height: 10),
+          // Nivel (Badge)
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.amber,
               borderRadius: BorderRadius.circular(20),
+              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2))],
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.local_pizza, color: Colors.orange, size: 16),
-                SizedBox(width: 5),
+                const Icon(Icons.workspace_premium, size: 16, color: Colors.black87),
+                const SizedBox(width: 4),
                 Text(
-                  "Pizza Master",
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
+                  level, // Ej: "Pizza Love"
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: Colors.black87),
                 ),
               ],
             ),
@@ -74,7 +72,3 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 }
-
-// Widget: Container — Uso: Fondo con gradiente y sombra para el header.
-// Widget: Column / Row — Uso: Organización vertical del avatar, nombre e insignia.
-// Widget: SizedBox — Uso: Espacios verticales entre elementos del header.

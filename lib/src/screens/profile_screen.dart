@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../features/auth/presentation/providers/auth_provider.dart';
+import '../screens/login_screen.dart'; // Importamos tu Login
 import '../widgets/profile_header.dart';
 
 const Color kPrimaryColor = Color(0xFFD32F2F);
@@ -9,126 +12,134 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // Widget: Scaffold — Uso: Estructura principal de la pantalla con `backgroundColor` y `body`.
-      backgroundColor: kBackgroundColor,
-      body: SingleChildScrollView(
-        // Widget: SingleChildScrollView — Uso: Permite scroll vertical con rebote.
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          // Widget: Column — Uso: Organiza widgets verticalmente (header, tarjetas, opciones).
-          children: [
-            const ProfileHeader(), // Widget: ProfileHeader — Uso: Header con avatar, nombre y badge.
+    // Escuchamos al AuthProvider
+    return Consumer<AuthProvider>(
+      builder: (context, authProvider, child) {
+        
+        // 1. SI NO ESTÁ LOGUEADO -> Muestra pantalla de Login
+        if (!authProvider.isAuth) {
+          return const LoginScreen();
+        }
 
-            Transform.translate(
-              // Widget: Transform.translate — Uso: Ajusta la posición del panel principal para superponer con el header.
-              offset: const Offset(0, -25),
-              child: Container(
-                // Widget: Container — Uso: Tarjeta con estadísticas (Pedidos, Cupones, Puntos).
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
+        // 2. SI SÍ ESTÁ LOGUEADO -> Muestra el Perfil Real
+        final user = authProvider.currentUser!;
+
+        return Scaffold(
+          backgroundColor: kBackgroundColor,
+          body: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              children: [
+                // Header Dinámico con datos del Usuario
+                ProfileHeader(
+                  name: user.name,
+                  email: user.email,
+                  level: user.levelName, // "Pizza Love", "Novato", etc.
+                ),
+
+                Transform.translate(
+                  offset: const Offset(0, -25),
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: const [
-                    _StatItem(value: "15", label: "Pedidos"),
-                    _VerticalDivider(),
-                    _StatItem(value: "3", label: "Cupones"),
-                    _VerticalDivider(),
-                    _StatItem(value: "240", label: "Puntos"),
-                  ],
-                ),
-              ),
-            ),
-
-            Padding( // Widget: Padding — Uso: Espaciado alrededor del bloque de opciones y títulos.
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  const _MenuTitle(title: "Mi Cuenta"),
-                  const _MenuOption(icon: Icons.person_outline, text: "Datos Personales"),
-                  const _MenuOption(icon: Icons.location_on_outlined, text: "Direcciones de Entrega"),
-                  const _MenuOption(icon: Icons.credit_card, text: "Métodos de Pago"),
-
-                  const SizedBox(height: 25),
-                  const _MenuTitle(title: "Soporte & Más"),
-                  const _MenuOption(icon: Icons.help_outline, text: "Ayuda y Soporte"),
-                  const _MenuOption(icon: Icons.notifications_none, text: "Notificaciones", showBadge: true),
-
-                  const SizedBox(height: 35),
-
-                  InkWell( // Widget: InkWell — Uso: Área táctil para 'Cerrar Sesión' con efecto ripple.
-                    onTap: () {},
-                    borderRadius: BorderRadius.circular(15),
-                    child: Container(
-                      // Widget: Container — Uso: Botón visual para cerrar sesión.
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          Icon(Icons.logout, color: kPrimaryColor, size: 20),
-                          SizedBox(width: 10),
-                          Text(
-                            "Cerrar Sesión",
-                            style: TextStyle(
-                              color: kPrimaryColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _StatItem(value: "0", label: "Pedidos"), // Podrías conectar esto a pedidos después
+                        const _VerticalDivider(),
+                        _StatItem(value: "0", label: "Cupones"),
+                        const _VerticalDivider(),
+                        // PUNTOS REALES
+                        _StatItem(value: user.points.toString(), label: "Puntos"),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 40),
-                ],
-              ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 10),
+                      const _MenuTitle(title: "Mi Cuenta"),
+                      const _MenuOption(icon: Icons.person_outline, text: "Datos Personales"),
+                      const _MenuOption(icon: Icons.location_on_outlined, text: "Direcciones de Entrega"),
+                      const _MenuOption(icon: Icons.credit_card, text: "Métodos de Pago"),
+
+                      const SizedBox(height: 25),
+                      const _MenuTitle(title: "Soporte & Más"),
+                      const _MenuOption(icon: Icons.help_outline, text: "Ayuda y Soporte"),
+                      
+                      const SizedBox(height: 35),
+
+                      // BOTÓN CERRAR SESIÓN REAL
+                      InkWell(
+                        onTap: () {
+                          // Llamamos al método de salir
+                          authProvider.signOut();
+                        },
+                        borderRadius: BorderRadius.circular(15),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(18),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Icon(Icons.logout, color: kPrimaryColor, size: 20),
+                              SizedBox(width: 10),
+                              Text(
+                                "Cerrar Sesión",
+                                style: TextStyle(
+                                  color: kPrimaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
 
+// --- WIDGETS AUXILIARES (Sin cambios, solo copia y pega para que funcione) ---
 class _StatItem extends StatelessWidget {
   final String value;
   final String label;
   const _StatItem({required this.value, required this.label});
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w900,
-            color: kPrimaryColor,
-          ),
-        ),
+        Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: kPrimaryColor)),
         const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500),
-        ),
+        Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[600], fontWeight: FontWeight.w500)),
       ],
     );
   }
@@ -136,31 +147,22 @@ class _StatItem extends StatelessWidget {
 
 class _VerticalDivider extends StatelessWidget {
   const _VerticalDivider();
-
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 1,
-      height: 35,
-      color: Colors.grey[200],
-    );
+    return Container(width: 1, height: 35, color: Colors.grey[200]);
   }
 }
 
 class _MenuTitle extends StatelessWidget {
   final String title;
   const _MenuTitle({required this.title});
-
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.centerLeft,
       child: Padding(
         padding: const EdgeInsets.only(bottom: 15, left: 5),
-        child: Text(
-          title,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.grey[800]),
-        ),
+        child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.grey[800])),
       ),
     );
   }
@@ -169,10 +171,7 @@ class _MenuTitle extends StatelessWidget {
 class _MenuOption extends StatelessWidget {
   final IconData icon;
   final String text;
-  final bool showBadge;
-
-  const _MenuOption({required this.icon, required this.text, this.showBadge = false});
-
+  const _MenuOption({required this.icon, required this.text});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -180,46 +179,18 @@ class _MenuOption extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 10, offset: const Offset(0, 4))],
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
         leading: Container(
           padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: kPrimaryColor.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
+          decoration: BoxDecoration(color: kPrimaryColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
           child: Icon(icon, color: kPrimaryColor, size: 22),
         ),
-        title: Text(
-          text,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-        ),
-        trailing: showBadge
-            ? Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: kPrimaryColor,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text("2", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
-              )
-            : Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+        title: Text(text, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        trailing: Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
       ),
     );
   }
 }
-
-// Widget: Scaffold — Uso: Provee la estructura principal de la pantalla con `backgroundColor` y `body`.
-// Widget: Column / Row — Uso: Organiza widgets vertical u horizontalmente en esta pantalla.
-// Widget: Container — Uso: Contenedores decorativos para tarjetas y secciones.
-// Widget: Padding — Uso: Añade separación interna alrededor de widgets.
-// Widget: Align — Uso: Alinea títulos y subtítulos dentro de la UI.
-// Widget: SizedBox — Uso: Añade espacios verticales u horizontales entre elementos.

@@ -8,6 +8,8 @@ import 'src/core/config/injection.dart';
 import 'src/features/product/presentation/providers/product_provider.dart';
 import 'src/screens/base_screen.dart';
 
+import 'src/features/auth/presentation/providers/auth_provider.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
@@ -30,7 +32,11 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
             lazy: false,
             create: (_) => ProductProvider()..loadPopularProducts()
-        ), 
+        ),
+        ChangeNotifierProvider(
+          lazy: false, // Queremos que verifique la sesión apenas arranque
+          create: (_) => AuthProvider()..checkSession()
+        ),
       ],
       child: MaterialApp(
         title: 'Fast Food App',
