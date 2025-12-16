@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/cart/presentation/providers/cart_provider.dart';
+import '../widgets/cart_item.dart'; // Tu widget personalizado
+import 'base_screen.dart'; // <--- IMPORTANTE: Para recuperar la barra de navegación
 
-// Colores
+// --- COLORES ---
 const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kBackgroundColor = Color(0xFFF2F2F2);
 const Color kTextColor = Color(0xFF333333);
@@ -12,59 +14,46 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Escuchamos al CartProvider
     final cart = Provider.of<CartProvider>(context);
+    
+    // Costo de envío simulado
+    const double deliveryFee = 2.50;
+    final double grandTotal = cart.items.isEmpty ? 0 : cart.totalAmount + deliveryFee;
 
     return Scaffold(
       backgroundColor: kBackgroundColor,
-      appBar: AppBar(
-        title: const Text('Mi Carrito', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
-        centerTitle: true,
-        backgroundColor: kPrimaryColor,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
       body: cart.items.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.shopping_cart_outlined, size: 80, color: Colors.grey),
-                  const SizedBox(height: 20),
-                  const Text("Tu carrito está vacío ☹️", style: TextStyle(fontSize: 18, color: Colors.grey)),
-                  TextButton(
-                    onPressed: () => Navigator.pop(context), // Volver al inicio
-                    child: const Text("Ir a pedir comida", style: TextStyle(color: kPrimaryColor, fontSize: 16)),
-                  )
-                ],
-              ),
-            )
+          ? const _EmptyCartState()
           : Column(
               children: [
-                // LISTA DE ITEMS
+                // 1. ÁREA SCROLLEABLE
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(20),
+                  child: CustomScrollView(
                     physics: const BouncingScrollPhysics(),
-                    itemCount: cart.items.length,
-                    itemBuilder: (context, index) {
-                      final item = cart.items[index];
-                      return Dismissible(
-                        key: Key(item.product.id),
-                        direction: DismissDirection.endToStart,
-                        onDismissed: (_) {
-                          cart.removeProductCompletely(item.product.id);
-                        },
-                        background: Container(
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 20),
-                          margin: const EdgeInsets.only(bottom: 15),
-                          decoration: BoxDecoration(color: Colors.red[100], borderRadius: BorderRadius.circular(15)),
-                          child: const Icon(Icons.delete_outline, color: kPrimaryColor, size: 30),
+                    slivers: [
+                      // Header
+                      const SliverAppBar(
+                        backgroundColor: kPrimaryColor,
+                        expandedHeight: 80,
+                        pinned: true,
+                        elevation: 0,
+                        centerTitle: true,
+                        iconTheme: IconThemeData(color: Colors.white),
+                        flexibleSpace: FlexibleSpaceBar(
+                          title: Text(
+                            "Mi Orden",
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                          ),
+                          centerTitle: true,
+                          titlePadding: EdgeInsets.only(bottom: 16),
                         ),
+                      ),
+
+                      // Dirección de Entrega
+                      SliverToBoxAdapter(
                         child: Container(
-                          margin: const EdgeInsets.only(bottom: 15),
-                          padding: const EdgeInsets.all(10),
+                          margin: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(15),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(15),
@@ -72,62 +61,118 @@ class CartScreen extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              // Imagen
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.network(
-                                  item.product.imageUrl,
-                                  width: 70,
-                                  height: 70,
-                                  fit: BoxFit.cover,
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: kPrimaryColor.withOpacity(0.1),
+                                  shape: BoxShape.circle,
                                 ),
+                                child: const Icon(Icons.location_on, color: kPrimaryColor),
                               ),
                               const SizedBox(width: 15),
-                              // Datos
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(item.product.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                    const SizedBox(height: 5),
-                                    Text("\$${item.product.price}", style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
+                                    Text("Entregar en:", style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+                                    const Text("Casa - Calle 123", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   ],
                                 ),
                               ),
-                              // Controles (+ -)
-                              Row(
-                                children: [
-                                  _QtyBtn(icon: Icons.remove, onTap: () => cart.removeOneItem(item.product.id)),
-                                  SizedBox(width: 30, child: Center(child: Text("${item.quantity}", style: const TextStyle(fontWeight: FontWeight.bold)))),
-                                  _QtyBtn(icon: Icons.add, onTap: () => cart.addToCart(item.product)),
-                                ],
+                              TextButton(
+                                onPressed: () {}, 
+                                child: const Text("Editar", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
                               )
                             ],
                           ),
                         ),
-                      );
-                    },
+                      ),
+
+                      // LISTA DE PRODUCTOS USANDO TU WIDGET
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final item = cart.items[index];
+                            
+                            // Envuelto en Dismissible para poder borrar deslizando
+                            return Dismissible(
+                              key: Key(item.product.id),
+                              direction: DismissDirection.endToStart,
+                              onDismissed: (_) => cart.removeProductCompletely(item.product.id),
+                              background: Container(
+                                alignment: Alignment.centerRight,
+                                padding: const EdgeInsets.only(right: 25),
+                                margin: const EdgeInsets.only(bottom: 20, left: 20, right: 20),
+                                decoration: BoxDecoration(color: Colors.red[100], borderRadius: BorderRadius.circular(20)),
+                                child: const Icon(Icons.delete_outline, color: kPrimaryColor, size: 30),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 20),
+                                child: CartItem(
+                                  title: item.product.name,
+                                  price: "\$${item.product.price}",
+                                  imageUrl: item.product.imageUrl,
+                                  quantity: item.quantity,
+                                  onAdd: () => cart.addToCart(item.product),
+                                  onRemove: () => cart.removeOneItem(item.product.id),
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: cart.items.length,
+                        ),
+                      ),
+
+                      // Cupón
+                      SliverToBoxAdapter(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.grey.withOpacity(0.2)),
+                          ),
+                          child: TextField(
+                            decoration: InputDecoration(
+                              icon: Icon(Icons.confirmation_number_outlined, color: Colors.grey[600]),
+                              hintText: "Código de promoción",
+                              border: InputBorder.none,
+                              suffixIcon: TextButton(
+                                onPressed: () {},
+                                child: const Text("Aplicar", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      
+                      const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                    ],
                   ),
                 ),
 
-                // RESUMEN DE PAGO
+                // 2. PANEL DE PAGO
                 Container(
                   padding: const EdgeInsets.all(25),
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, -5))],
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 20, offset: const Offset(0, -5))
+                    ],
                   ),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text("Total", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-                          Text("\$${cart.totalAmount.toStringAsFixed(2)}", style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900, color: kPrimaryColor)),
-                        ],
-                      ),
+                      _SummaryRow(label: "Subtotal", value: cart.totalAmount),
+                      const SizedBox(height: 10),
+                      const _SummaryRow(label: "Costo de Envío", value: deliveryFee),
+                      const Divider(height: 30),
+                      _SummaryRow(label: "Total", value: grandTotal, isTotal: true),
+                      
                       const SizedBox(height: 20),
+                      
                       SizedBox(
                         width: double.infinity,
                         height: 55,
@@ -135,14 +180,24 @@ class CartScreen extends StatelessWidget {
                           style: ElevatedButton.styleFrom(
                             backgroundColor: kPrimaryColor,
                             foregroundColor: Colors.white,
+                            elevation: 5,
+                            shadowColor: kPrimaryColor.withOpacity(0.4),
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                           ),
                           onPressed: () {
-                            // AQUÍ IREMOS A PAGAR (Fase 6 Parte 3)
-                            // Por ahora solo imprime
                             print("Enviando pedido a Supabase...");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Procesando pago... 💳"), backgroundColor: Colors.black87),
+                            );
                           },
-                          child: const Text("Confirmar Pedido", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Text("Confirmar Pedido", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                              SizedBox(width: 10),
+                              Icon(Icons.arrow_forward_rounded, size: 20),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -154,22 +209,84 @@ class CartScreen extends StatelessWidget {
   }
 }
 
-// Botoncito auxiliar pequeño
-class _QtyBtn extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-  const _QtyBtn({required this.icon, required this.onTap});
+// --- WIDGETS AUXILIARES ---
+
+// 1. Estado Vacío (CORREGIDO)
+class _EmptyCartState extends StatelessWidget {
+  const _EmptyCartState();
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.all(4),
-        decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(8)),
-        child: Icon(icon, size: 18, color: Colors.black87),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(25),
+            decoration: BoxDecoration(
+              color: kPrimaryColor.withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(Icons.shopping_cart_outlined, size: 60, color: kPrimaryColor),
+          ),
+          const SizedBox(height: 20),
+          const Text("Tu carrito está vacío", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 10),
+          Text("¡Agrega algunas pizzas deliciosas!", style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+          const SizedBox(height: 30),
+          ElevatedButton(
+            // --- FIX: NAVEGACIÓN A BASE SCREEN ---
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const BaseScreen()), // Volvemos al Marco Principal
+                (route) => false,
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kPrimaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            ),
+            child: const Text("Ir al Menú", style: TextStyle(fontSize: 16)),
+          )
+        ],
       ),
+    );
+  }
+}
+
+// 2. Fila de Resumen
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final double value;
+  final bool isTotal;
+
+  const _SummaryRow({required this.label, required this.value, this.isTotal = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label, 
+          style: TextStyle(
+            fontSize: isTotal ? 18 : 14, 
+            fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+            color: isTotal ? kTextColor : Colors.grey[600]
+          )
+        ),
+        Text(
+          "\$${value.toStringAsFixed(2)}",
+          style: TextStyle(
+            fontSize: isTotal ? 22 : 14,
+            fontWeight: isTotal ? FontWeight.w900 : FontWeight.bold,
+            color: isTotal ? kPrimaryColor : kTextColor
+          ),
+        ),
+      ],
     );
   }
 }

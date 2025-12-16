@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kTextColor = Color(0xFF333333);
+const Color kBackgroundColor = Color(0xFFF2F2F2); // Color gris claro para fondos
 
 class CartItem extends StatelessWidget {
   final String title;
@@ -24,78 +25,147 @@ class CartItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isNetworkImage = imageUrl.startsWith('http');
+    
+    // Lógica para calcular subtotal visualmente
+    // Limpiamos el string (ej: "$12.50" -> 12.50)
+    double unitPrice = 0.0;
+    try {
+      unitPrice = double.parse(price.replaceAll(RegExp(r'[^0-9.]'), ''));
+    } catch (_) {}
+    final subtotal = unitPrice * quantity;
 
-    return Container( // Widget: Container — Uso: Tarjeta del item con sombra y bordes.
+    return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 5)),
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 20, 
+            offset: const Offset(0, 5)
+          ),
         ],
       ),
-      child: Padding( // Widget: Padding — Uso: Espacio interno alrededor del contenido del item.
+      child: Padding(
         padding: const EdgeInsets.all(12.0),
-        child: Row( // Widget: Row — Uso: Organiza la imagen y la sección de texto horizontalmente.
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(15),
-              child: SizedBox(
-                width: 90,
-                height: 90,
-                child: isNetworkImage
-                    ? Image.network(
-                        imageUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return Center(
-                            child: CircularProgressIndicator(color: kPrimaryColor.withValues(alpha: 0.3), strokeWidth: 2),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: const Icon(Icons.broken_image, color: Colors.grey)),
-                      )
-                    : Image.asset(imageUrl, fit: BoxFit.cover, errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: const Icon(Icons.image_not_supported, color: Colors.grey))),
-              ),
-            ),
-
-            const SizedBox(width: 16),
-
-            Expanded( // Widget: Expanded — Uso: Hace que la sección de texto ocupe el espacio restante.
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: kTextColor), maxLines: 2, overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text(price, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: kPrimaryColor)),
-                  const SizedBox(height: 12),
-
-                  Row(
+        child: IntrinsicHeight( // Truco Pro: Ajusta la altura al contenido más alto
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // 1. IMAGEN
+              ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: SizedBox(
+                  width: 100, // Un poco más grande para que luzca
+                  height: 100,
+                  child: Stack(
+                    fit: StackFit.expand,
                     children: [
-                      _QuantityBtn(icon: Icons.remove, onTap: onRemove),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: Text('$quantity', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: kTextColor)),
-                      ),
-                      _QuantityBtn(icon: Icons.add, onTap: onAdd, isActive: true),
+                      isNetworkImage
+                          ? Image.network(
+                              imageUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: const Icon(Icons.broken_image, color: Colors.grey)),
+                            )
+                          : Image.asset(
+                              imageUrl, 
+                              fit: BoxFit.cover, 
+                              errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[100], child: const Icon(Icons.image_not_supported, color: Colors.grey))
+                            ),
                     ],
-                  )
-                ],
+                  ),
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(width: 16),
+
+              // 2. CONTENIDO (Título, Precio, Controles)
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribuye verticalmente
+                  children: [
+                    // Título
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 16, 
+                        fontWeight: FontWeight.bold, 
+                        color: kTextColor,
+                        height: 1.2
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    
+                    // Precio Unitario (Texto pequeño gris)
+                    Text(
+                      "Unitario: $price",
+                      style: TextStyle(
+                        fontSize: 12, 
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 8),
+
+                    // FILA INFERIOR: Controles vs Subtotal
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Selector de Cantidad (Estilo Píldora)
+                        Container(
+                          height: 36,
+                          decoration: BoxDecoration(
+                            color: kBackgroundColor,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              _QuantityBtn(icon: Icons.remove, onTap: onRemove),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8),
+                                child: Text(
+                                  '$quantity',
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: kTextColor),
+                                ),
+                              ),
+                              _QuantityBtn(icon: Icons.add, onTap: onAdd, isAdd: true),
+                            ],
+                          ),
+                        ),
+                        
+                        // Subtotal (Texto Grande Rojo)
+                        Text(
+                          "\$${subtotal.toStringAsFixed(2)}",
+                          style: const TextStyle(
+                            fontSize: 18, 
+                            fontWeight: FontWeight.w900, 
+                            color: kPrimaryColor
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
+// Botón de cantidad interno optimizado
 class _QuantityBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
-  final bool isActive;
+  final bool isAdd;
 
-  const _QuantityBtn({required this.icon, this.onTap, this.isActive = false});
+  const _QuantityBtn({required this.icon, this.onTap, this.isAdd = false});
 
   @override
   Widget build(BuildContext context) {
@@ -103,15 +173,18 @@ class _QuantityBtn extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(30),
-        child: Container(
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
           width: 32,
-          height: 32,
-          decoration: BoxDecoration(color: isActive ? kPrimaryColor : const Color(0xFFF5F5F5), shape: BoxShape.circle),
-          child: Icon(icon, size: 18, color: isActive ? Colors.white : const Color(0xFF666666)),
+          height: 36,
+          child: Icon(
+            icon, 
+            size: 16, 
+            color: isAdd ? kPrimaryColor : Colors.grey[700]
+          ),
         ),
       ),
     );
   }
+  
 }
-

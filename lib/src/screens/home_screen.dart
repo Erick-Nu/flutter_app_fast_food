@@ -281,20 +281,23 @@ class _PizzaCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
-            child: SizedBox(
-              width: 120,
-              height: 120,
-              child: Image.network(
-                imageUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(color: Colors.grey[200], child: const Icon(Icons.local_pizza, color: Colors.grey));
-                },
+            ClipRRect(
+              borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
+              child: SizedBox(
+                width: 120,
+                height: 120,
+                child: Hero( // <--- AGREGAR ESTO
+                  tag: title, // Usamos el título o ID como tag único (debe coincidir con el del detalle)
+                  // Nota: Lo ideal es usar product.id, pero en _PizzaCard solo tienes title.
+                  // Si puedes, pasa el 'id' a _PizzaCard. Si no, usa 'title' temporalmente.
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                    // ...
+                  ),
+                ),
               ),
             ),
-          ),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(15),
