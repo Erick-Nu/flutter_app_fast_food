@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // <--- Necesario para leer datos
-import '../features/product/presentation/providers/product_provider.dart'; // <--- Tu Provider
+import 'package:provider/provider.dart';
+import '../features/product/presentation/providers/product_provider.dart';
+import '../features/cart/presentation/providers/cart_provider.dart'; // <--- 1. IMPORTANTE: Agregado
 import 'product_detail_screen.dart';
 import 'desserts_screen.dart';
 import '../widgets/custom_drawer.dart';
@@ -15,7 +16,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Categorías estáticas (esto está bien dejarlo fijo por ahora)
     final List<Map<String, dynamic>> categories = [
       {"icon": Icons.local_pizza, "label": "Clásicas"},
       {"icon": Icons.workspace_premium, "label": "Gourmet"},
@@ -29,7 +29,7 @@ class HomeScreen extends StatelessWidget {
       drawer: const CustomDrawer(),
       body: Column(
         children: [
-          // --- HEADER (Igual que antes) ---
+          // --- HEADER ---
           Container(
             padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 25),
             decoration: const BoxDecoration(
@@ -86,7 +86,7 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Banner Promocional (Estático por ahora)
+                  // Banner Promocional
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: SizedBox(
@@ -133,7 +133,7 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Carrusel de Categorías
+                  // Carrusel
                   SizedBox(
                     height: 90,
                     child: ListView.builder(
@@ -185,30 +185,22 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // -------------------------------------------------------
-                  // AQUÍ COMIENZA LA MAGIA: CONSUMER DE PRODUCTPROVIDER
-                  // -------------------------------------------------------
+                  // CONSUMER DE PRODUCTOS
                   Consumer<ProductProvider>(
                     builder: (context, provider, child) {
-                      // 1. Estado CARGANDO
                       if (provider.isLoading) {
                         return const Center(child: Padding(
                           padding: EdgeInsets.all(20.0),
                           child: CircularProgressIndicator(color: kPrimaryColor),
                         ));
                       }
-
-                      // 2. Estado ERROR
                       if (provider.errorMessage != null) {
                         return Center(child: Text(provider.errorMessage!, style: const TextStyle(color: Colors.red)));
                       }
-
-                      // 3. Estado VACÍO
                       if (provider.products.isEmpty) {
                         return const Center(child: Text("No hay pizzas disponibles hoy 😢"));
                       }
 
-                      // 4. Estado ÉXITO (Lista Real)
                       return ListView.builder(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         physics: const NeverScrollableScrollPhysics(),
@@ -222,20 +214,27 @@ class HomeScreen extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ProductDetailScreen(
-                                    title: pizza.name,
-                                    price: "\$${pizza.price}",
-                                    imageUrl: pizza.imageUrl,
-                                  ),
+                                  builder: (context) => ProductDetailScreen(product: pizza),
                                 ),
                               );
                             },
                             child: _PizzaCard(
                               title: pizza.name,
-                              ingredients: pizza.description, // Descripción de la BD
+                              ingredients: pizza.description,
                               price: "\$${pizza.price.toStringAsFixed(2)}",
                               imageUrl: pizza.imageUrl,
                               rating: pizza.rating.toString(),
+                              // 2. CONECTAMOS LA LÓGICA DE AGREGAR
+                              onAdd: () {
+                                Provider.of<CartProvider>(context, listen: false).addToCart(pizza);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text("¡${pizza.name} agregada! 🍕"),
+                                    duration: const Duration(seconds: 1),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              },
                             ),
                           );
                         },
@@ -253,13 +252,14 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// Widget Interno (Sin cambios grandes, solo recibe strings)
+// 3. WIDGET ACTUALIZADO (Recibe onAdd)
 class _PizzaCard extends StatelessWidget {
   final String title;
   final String ingredients;
   final String price;
   final String imageUrl;
   final String rating;
+  final VoidCallback onAdd; // <--- NUEVO CAMPO
 
   const _PizzaCard({
     required this.title,
@@ -267,6 +267,7 @@ class _PizzaCard extends StatelessWidget {
     required this.price,
     required this.imageUrl,
     required this.rating,
+    required this.onAdd, // <--- REQUERIDO
   });
 
   @override
@@ -322,10 +323,15 @@ class _PizzaCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(price, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: kTextColor)),
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(10)),
-                        child: const Icon(Icons.add, color: kWhiteColor, size: 20),
+                      
+                      // BOTÓN FUNCIONAL
+                      InkWell(
+                        onTap: onAdd, // <--- Acción al tocar
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: kPrimaryColor, borderRadius: BorderRadius.circular(10)),
+                          child: const Icon(Icons.add, color: kWhiteColor, size: 20),
+                        ),
                       ),
                     ],
                   )

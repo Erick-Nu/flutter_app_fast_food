@@ -9,6 +9,7 @@ import 'src/features/product/presentation/providers/product_provider.dart';
 import 'src/screens/base_screen.dart';
 
 import 'src/features/auth/presentation/providers/auth_provider.dart';
+import 'src/features/cart/presentation/providers/cart_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
           lazy: false, // Queremos que verifique la sesión apenas arranque
           create: (_) => AuthProvider()..checkSession()
         ),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp(
         title: 'Fast Food App',
