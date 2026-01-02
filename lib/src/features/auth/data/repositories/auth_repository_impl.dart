@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import '../../domain/entities/user_entity.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_data_source.dart';
+import '../../../../core/config/supabase_client.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource remoteDataSource;
@@ -42,5 +45,35 @@ class AuthRepositoryImpl implements AuthRepository {
     final user = remoteDataSource.getCurrentSupabaseUser();
     if (user == null) return null;
     return _buildUserEntity(user.id, user.email!);
+  }
+
+  @override
+  Future<void> sendPasswordRecovery(String email) async {
+    try {
+      final baseUrl = SupabaseConfig.supabaseUrl;
+      final apiKey = SupabaseConfig.supabaseAnonKey;
+
+      const redirectUrl = 'https://web-page-app-fast-food.vercel.app/reset-password';
+
+      final uri = Uri.parse('$baseUrl/auth/v1/recover');
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': apiKey,
+        },
+        body: jsonEncode({
+          'email': email,
+          'redirect_to': redirectUrl,
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Error Supabase: ${response.body}');
+      }
+    } catch (e) {
+      throw Exception('Error al enviar recuperación: $e');
+    }
   }
 }

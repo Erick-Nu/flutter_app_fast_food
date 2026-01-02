@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
+import 'reset_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -68,6 +69,23 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 25),
+
+              Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ResetPasswordScreen(),
+                    ),
+                  );
+                },
+                child: Text("¿Olvidaste tu contraseña?", 
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold) // Usa tu kPrimaryColor
+                ),
+              ),
+              ),
 
               if (authProvider.errorMessage != null)
                 Padding(

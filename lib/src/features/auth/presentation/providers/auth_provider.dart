@@ -77,4 +77,24 @@ class AuthProvider extends ChangeNotifier {
     _status = AuthStatus.unauthenticated;
     notifyListeners();
   }
+
+  Future<bool> sendPasswordRecovery(String email) async {
+    _status = AuthStatus.checking; // Para mostrar carga si quieres
+    notifyListeners();
+
+    try {
+      logger.i('Enviando recuperación a: $email');
+      await _repository.sendPasswordRecovery(email);
+      
+      _status = AuthStatus.unauthenticated; // Regresamos estado a normal
+      notifyListeners();
+      return true; // Éxito
+    } catch (e) {
+      logger.e('Error recuperando', error: e);
+      _errorMessage = 'No se pudo enviar el correo.';
+      _status = AuthStatus.unauthenticated;
+      notifyListeners();
+      return false; // Fallo
+    }
+  }
 }
