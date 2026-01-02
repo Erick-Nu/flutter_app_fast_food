@@ -192,7 +192,7 @@ class CartScreen extends StatelessWidget {
                                 // A. Verificar login
                                 if (!authProvider.isAuth) {
                                    ScaffoldMessenger.of(context).showSnackBar(
-                                     const SnackBar(content: Text("Debes iniciar sesión para pedir"), backgroundColor: Colors.orange),
+                                     const SnackBar(content: Text("Debes iniciar sesión para pedir 🔒"), backgroundColor: Colors.orange),
                                    );
                                    return;
                                 }
@@ -211,7 +211,7 @@ class CartScreen extends StatelessWidget {
                                      
                                      ScaffoldMessenger.of(context).showSnackBar(
                                        const SnackBar(
-                                         content: Text("¡Pedido recibido! Cocinando..."), 
+                                         content: Text("¡Pedido recibido! 👨‍🍳 Cocinando..."), 
                                          backgroundColor: Colors.green,
                                          duration: Duration(seconds: 4),
                                        ),
@@ -221,7 +221,7 @@ class CartScreen extends StatelessWidget {
                                   // D. Error
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                       const SnackBar(content: Text("Error al procesar el pedido"), backgroundColor: Colors.red),
+                                       const SnackBar(content: Text("Error al procesar el pedido ❌"), backgroundColor: Colors.red),
                                     );
                                   }
                                 }
