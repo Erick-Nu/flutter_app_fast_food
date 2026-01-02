@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/cart_item.dart';
 import '../../../product/domain/entities/product_entity.dart';
-import '../../data/order_repository.dart'; // <--- 1. IMPORTAR EL REPO
+import '../../data/order_repository.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<CartItem> _items = [];
-  final OrderRepository _orderRepository = OrderRepository(); // <--- 2. INSTANCIAR REPO
+  final OrderRepository _orderRepository = OrderRepository();
 
   List<CartItem> get items => _items;
 
-  // ESTADO DE CARGA (Para bloquear el botón mientras se envía)
   bool _isProcessing = false;
   bool get isProcessing => _isProcessing;
 
@@ -52,19 +51,14 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // --- 3. NUEVO MÉTODO: ENVIAR PEDIDO ---
   Future<bool> submitOrder(String userId) async {
     if (_items.isEmpty) return false;
 
-    // Activamos modo carga (spinner)
     _isProcessing = true;
     notifyListeners(); 
 
-    // Calculamos total final (Precio productos + Envío)
-    // Asegúrate que este 2.50 coincida con lo que muestras en la pantalla CartScreen
     final double totalConEnvio = totalAmount + 2.50; 
 
-    // Llamamos al repositorio
     final success = await _orderRepository.createOrder(
       userId: userId,
       total: totalConEnvio,
@@ -72,10 +66,9 @@ class CartProvider extends ChangeNotifier {
     );
 
     if (success) {
-      clearCart(); // Si se guardó, vaciamos el carrito local
+      clearCart();
     }
 
-    // Desactivamos modo carga
     _isProcessing = false;
     notifyListeners();
     

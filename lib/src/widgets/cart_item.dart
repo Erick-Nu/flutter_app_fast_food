@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kTextColor = Color(0xFF333333);
-const Color kBackgroundColor = Color(0xFFF2F2F2); // Color gris claro para fondos
+const Color kBackgroundColor = Color(0xFFF2F2F2);
 
 class CartItem extends StatelessWidget {
   final String title;
@@ -26,8 +26,6 @@ class CartItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final isNetworkImage = imageUrl.startsWith('http');
     
-    // Lógica para calcular subtotal visualmente
-    // Limpiamos el string (ej: "$12.50" -> 12.50)
     double unitPrice = 0.0;
     try {
       unitPrice = double.parse(price.replaceAll(RegExp(r'[^0-9.]'), ''));
@@ -53,7 +51,6 @@ class CartItem extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // 1. IMAGEN
               ClipRRect(
                 borderRadius: BorderRadius.circular(15),
                 child: SizedBox(
@@ -80,13 +77,11 @@ class CartItem extends StatelessWidget {
 
               const SizedBox(width: 16),
 
-              // 2. CONTENIDO (Título, Precio, Controles)
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween, // Distribuye verticalmente
                   children: [
-                    // Título
                     Text(
                       title,
                       style: const TextStyle(
@@ -99,7 +94,6 @@ class CartItem extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                     
-                    // Precio Unitario (Texto pequeño gris)
                     Text(
                       "Unitario: $price",
                       style: TextStyle(
@@ -111,11 +105,9 @@ class CartItem extends StatelessWidget {
                     
                     const SizedBox(height: 8),
 
-                    // FILA INFERIOR: Controles vs Subtotal
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        // Selector de Cantidad (Estilo Píldora)
                         Container(
                           height: 36,
                           decoration: BoxDecoration(
@@ -137,7 +129,6 @@ class CartItem extends StatelessWidget {
                           ),
                         ),
                         
-                        // Subtotal (Texto Grande Rojo)
                         Text(
                           "\$${subtotal.toStringAsFixed(2)}",
                           style: const TextStyle(
@@ -158,8 +149,6 @@ class CartItem extends StatelessWidget {
     );
   }
 }
-
-// Botón de cantidad interno optimizado
 class _QuantityBtn extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;

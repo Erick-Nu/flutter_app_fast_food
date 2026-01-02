@@ -8,7 +8,7 @@ const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kBackgroundColor = Color(0xFFF2F2F2);
 
 class OrderDetailScreen extends StatefulWidget {
-  final OrderModel order; // Recibimos la cabecera del pedido
+  final OrderModel order;
 
   const OrderDetailScreen({super.key, required this.order});
 
@@ -20,7 +20,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   @override
   void initState() {
     super.initState();
-    // Cargamos los detalles apenas entramos
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<OrderProvider>(context, listen: false)
           .fetchOrderDetails(widget.order.id);
@@ -95,7 +94,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     child: Column(
                       children: [
-                        // 1. CABECERA RESUMEN MEJORADA
                         Container(
                           margin: const EdgeInsets.all(16),
                           padding: const EdgeInsets.all(20),
@@ -124,16 +122,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                 ],
                               ),
                               const SizedBox(height: 16),
-                              
-                              // Fecha con icono
+
                               _InfoRowWithIcon(
                                 icon: Icons.calendar_today,
                                 label: "Fecha",
                                 value: _formatDate(order.date),
                               ),
                               const SizedBox(height: 12),
-                              
-                              // Estado con chip colorido
+
                               Row(
                                 children: [
                                   Icon(Icons.info_outline, color: Colors.grey[600], size: 20),
@@ -179,14 +175,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               ),
                               
                               const Divider(height: 30, thickness: 1),
-                              
-                              // Desglose detallado
+
                               _buildPriceBreakdown(order),
                             ],
                           ),
                         ),
 
-                        // 2. TÍTULO PRODUCTOS
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                           child: Row(
@@ -201,7 +195,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           ),
                         ),
 
-                        // 3. LISTA DE PRODUCTOS MEJORADA
                         ListView.builder(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -225,7 +218,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                               ),
                               child: Row(
                                 children: [
-                                  // Imagen con loading
                                   ClipRRect(
                                     borderRadius: BorderRadius.circular(12),
                                     child: Image.network(
@@ -263,7 +255,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 16),
-                                  // Datos
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,7 +300,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  // Subtotal
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
@@ -329,7 +319,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                           },
                         ),
 
-                        // 4. BOTONES DE ACCIÓN
                         Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
@@ -417,9 +406,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildPriceBreakdown(OrderModel order) {
-    // Calculamos estimaciones para el desglose
-    final subtotal = order.total * 0.93; // Asumimos 93% es subtotal
-    final shipping = order.total * 0.07; // 7% envío
+    final subtotal = order.total * 0.93;
+    final shipping = order.total * 0.07;
 
     return Column(
       children: [

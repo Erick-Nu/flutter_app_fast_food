@@ -7,8 +7,7 @@ abstract class AuthRemoteDataSource {
   Future<User> signUp(String email, String password, String name);
   Future<void> signOut();
   User? getCurrentSupabaseUser();
-  
-  // Este método extrae los datos de TU tabla personalizada (puntos, nivel)
+
   Future<Map<String, dynamic>> getUserProfile(String userId);
 }
 
@@ -47,7 +46,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<Map<String, dynamic>> getUserProfile(String userId) async {
     try {
-      // Consultamos la VISTA INTELIGENTE que creamos antes
       final data = await SupabaseConfig.client
           .from('perfil_completo_usuario')
           .select()
@@ -56,7 +54,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return data;
     } catch (e) {
       logger.e('Error leyendo perfil de usuario', error: e);
-      // Si falla (ej: el trigger falló), devolvemos datos básicos
       return {'puntos': 0, 'nombre_nivel': 'Novato'}; 
     }
   }

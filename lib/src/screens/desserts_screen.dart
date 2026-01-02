@@ -47,13 +47,12 @@ class DessertsScreen extends StatelessWidget {
       },
     ];
 
-    return Scaffold( // Widget: Scaffold — Uso: Contenedor principal con CustomScrollView.
+    return Scaffold(
       backgroundColor: kBackgroundColor,
       body: CustomScrollView(
-        // Widget: CustomScrollView — Uso: Contenedor con Slivers para cabecera y grid.
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverAppBar( // Widget: SliverAppBar — Uso: Cabecera flexible con título y acciones.
+          SliverAppBar(
             systemOverlayStyle: SystemUiOverlayStyle.light,
             backgroundColor: kPrimaryColor,
             expandedHeight: 140.0,
@@ -104,7 +103,7 @@ class DessertsScreen extends StatelessWidget {
             ),
           ),
 
-          SliverToBoxAdapter( // Widget: SliverToBoxAdapter + TextField — Uso: Campo de búsqueda encima del grid.
+          SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
               child: Column(
@@ -134,7 +133,7 @@ class DessertsScreen extends StatelessWidget {
 
                   const SizedBox(height: 25),
 
-                  SizedBox( // Widget: SizedBox — Uso: Lista horizontal de chips de categoría.
+                  SizedBox(
                     height: 40,
                     child: ListView(
                       scrollDirection: Axis.horizontal,
@@ -152,7 +151,7 @@ class DessertsScreen extends StatelessWidget {
             ),
           ),
 
-          SliverPadding( // Widget: SliverGrid — Uso: Grid de `FoodCard` para mostrar postres.
+          SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             sliver: SliverGrid(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -173,7 +172,7 @@ class DessertsScreen extends StatelessWidget {
                         child: Opacity(opacity: value, child: child),
                       );
                     },
-                    child: FoodCard( // Widget: FoodCard — Uso: Tarjeta individual de producto en el grid.
+                    child: FoodCard(
                       title: desserts[index]["title"],
                       price: desserts[index]["price"],
                       imageUrl: desserts[index]["image"],
@@ -222,11 +221,3 @@ class DessertsScreen extends StatelessWidget {
     );
   }
 }
-
-// Widget: Scaffold — Uso: Contenedor principal con CustomScrollView.
-// Widget: AppBar (SliverAppBar) — Uso: Cabecera flexible con título y acciones.
-// Widget: Stack — Uso: Superposición de decoraciones y elementos de fondo.
-// Widget: Container — Uso: Fondos, chips y campos de búsqueda con estilo.
-// Widget: ListView — Uso: Lista horizontal de categorías.
-// Widget: GridView — Uso: Grid (SliverGrid) para mostrar productos.
-// Widget: TextField — Uso: Campo de búsqueda para filtrar postres.

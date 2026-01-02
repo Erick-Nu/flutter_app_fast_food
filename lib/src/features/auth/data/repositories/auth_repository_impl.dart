@@ -7,9 +7,7 @@ class AuthRepositoryImpl implements AuthRepository {
 
   AuthRepositoryImpl({required this.remoteDataSource});
 
-  // Método auxiliar para convertir datos crudos a Entity
   Future<UserEntity> _buildUserEntity(String userId, String email) async {
-    // 1. Buscamos los datos extra (puntos, nivel) en la DB
     final profileData = await remoteDataSource.getUserProfile(userId);
     
     return UserEntity(
@@ -30,7 +28,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity> signUp(String email, String password, String name) async {
     final user = await remoteDataSource.signUp(email, password, name);
-    // Esperamos un poco para que el Trigger de base de datos se ejecute
     await Future.delayed(const Duration(seconds: 1));
     return _buildUserEntity(user.id, user.email!);
   }

@@ -9,11 +9,7 @@ class ProductRepositoryImpl implements ProductRepository {
 
   @override
   Future<List<ProductEntity>> getPopularProducts() async {
-    // Aquí podrías agregar lógica extra, ej: verificar si hay internet.
-    // Por ahora, simplemente llamamos al datasource.
     final productModels = await remoteDataSource.getProducts();
-    
-    // Devolvemos los modelos (que son hijos de Entity), así que cumple el contrato.
     return productModels;
   }
 }

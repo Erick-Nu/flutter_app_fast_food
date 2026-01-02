@@ -10,12 +10,11 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Controladores de texto
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
-  final _nameCtrl = TextEditingController(); // Solo para registro
+  final _nameCtrl = TextEditingController();
   
-  bool _isLogin = true; // Alternar entre Login y Registro
+  bool _isLogin = true;
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +28,6 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Logo o Icono
               const Icon(Icons.local_pizza, size: 80, color: Color(0xFFD32F2F)),
               const SizedBox(height: 20),
               Text(
@@ -38,7 +36,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 30),
 
-              // Campo Nombre (Solo si es Registro)
               if (!_isLogin)
                 TextField(
                   controller: _nameCtrl,
@@ -50,7 +47,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               if (!_isLogin) const SizedBox(height: 15),
 
-              // Campo Email
               TextField(
                 controller: _emailCtrl,
                 keyboardType: TextInputType.emailAddress,
@@ -62,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 15),
 
-              // Campo Password
               TextField(
                 controller: _passCtrl,
                 obscureText: true,
@@ -74,14 +69,16 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 25),
 
-              // Mensaje de Error
               if (authProvider.errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 20),
-                  child: Text(authProvider.errorMessage!, style: const TextStyle(color: Colors.red)),
+                  child: Text(
+                    authProvider.errorMessage!, 
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
 
-              // Botón Principal
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -91,34 +88,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  onPressed: authProvider.isLoading ? null : () async {
-                    bool success;
+                  onPressed: () {
                     if (_isLogin) {
-                      success = await authProvider.signIn(_emailCtrl.text, _passCtrl.text);
+                      authProvider.signIn(_emailCtrl.text, _passCtrl.text);
                     } else {
-                      success = await authProvider.signUp(_emailCtrl.text, _passCtrl.text, _nameCtrl.text);
-                    }
-                    
-                    if (success && mounted) {
-                      // Si funcionó, cerramos la pantalla de Login para volver al Perfil
-                      // Ojo: En clean architecture puro usaríamos un router, 
-                      // pero por ahora esto funciona perfecto para cambiar de estado.
+                      authProvider.signUp(_emailCtrl.text, _passCtrl.text, _nameCtrl.text);
                     }
                   },
-                  child: authProvider.isLoading 
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : Text(_isLogin ? "INICIAR SESIÓN" : "REGISTRARSE", style: const TextStyle(fontWeight: FontWeight.bold)),
+                  child: Text(
+                    _isLogin ? "INICIAR SESIÓN" : "REGISTRARSE", 
+                    style: const TextStyle(fontWeight: FontWeight.bold)
+                  ),
                 ),
               ),
               
               const SizedBox(height: 20),
               
-              // Switch Login/Registro
               TextButton(
                 onPressed: () {
                   setState(() {
                     _isLogin = !_isLogin;
-                    authProvider.notifyListeners(); // Limpiar errores
                   });
                 },
                 child: Text(

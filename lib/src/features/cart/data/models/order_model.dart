@@ -1,6 +1,6 @@
 class OrderModel {
   final String id;
-  final String code; // 'ORD-1', 'ORD-2'
+  final String code;
   final double total;
   final String status;
   final DateTime date;
@@ -13,14 +13,13 @@ class OrderModel {
     required this.date,
   });
 
-  // Convertir JSON de Supabase a Dart
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
       id: json['id'],
-      code: json['codigo_orden'] ?? 'Pendiente', // Tu columna generada
-      total: (json['precio_total'] as num).toDouble(), // Tu columna de precio
+      code: json['codigo_orden'] ?? 'Pendiente',
+      total: (json['precio_total'] as num).toDouble(),
       status: json['estado'] ?? 'recibido',
-      date: DateTime.parse(json['fecha']), // Supabase devuelve String ISO8601
+      date: DateTime.parse(json['fecha']),
     );
   }
 }

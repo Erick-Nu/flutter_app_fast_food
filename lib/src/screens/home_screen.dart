@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/product/presentation/providers/product_provider.dart';
-import '../features/cart/presentation/providers/cart_provider.dart'; // <--- 1. IMPORTANTE: Agregado
+import '../features/cart/presentation/providers/cart_provider.dart';
 import 'product_detail_screen.dart';
 import 'desserts_screen.dart';
 import '../widgets/custom_drawer.dart';
@@ -29,7 +29,6 @@ class HomeScreen extends StatelessWidget {
       drawer: const CustomDrawer(),
       body: Column(
         children: [
-          // --- HEADER ---
           Container(
             padding: const EdgeInsets.only(top: 50, left: 20, right: 20, bottom: 25),
             decoration: const BoxDecoration(
@@ -86,7 +85,6 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Banner Promocional
                   Padding(
                     padding: const EdgeInsets.all(20),
                     child: SizedBox(
@@ -133,7 +131,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // Carrusel
                   SizedBox(
                     height: 90,
                     child: ListView.builder(
@@ -185,7 +182,6 @@ class HomeScreen extends StatelessWidget {
                     ),
                   ),
 
-                  // CONSUMER DE PRODUCTOS
                   Consumer<ProductProvider>(
                     builder: (context, provider, child) {
                       if (provider.isLoading) {
@@ -224,12 +220,11 @@ class HomeScreen extends StatelessWidget {
                               price: "\$${pizza.price.toStringAsFixed(2)}",
                               imageUrl: pizza.imageUrl,
                               rating: pizza.rating.toString(),
-                              // 2. CONECTAMOS LA LÓGICA DE AGREGAR
                               onAdd: () {
                                 Provider.of<CartProvider>(context, listen: false).addToCart(pizza);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text("¡\${pizza.name} agregada!"),
+                                    content: Text("¡${pizza.name} agregada!"),
                                     duration: const Duration(seconds: 1),
                                     backgroundColor: Colors.green,
                                   ),
@@ -252,14 +247,13 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-// 3. WIDGET ACTUALIZADO (Recibe onAdd)
 class _PizzaCard extends StatelessWidget {
   final String title;
   final String ingredients;
   final String price;
   final String imageUrl;
   final String rating;
-  final VoidCallback onAdd; // <--- NUEVO CAMPO
+  final VoidCallback onAdd;
 
   const _PizzaCard({
     required this.title,
@@ -267,7 +261,7 @@ class _PizzaCard extends StatelessWidget {
     required this.price,
     required this.imageUrl,
     required this.rating,
-    required this.onAdd, // <--- REQUERIDO
+    required this.onAdd,
   });
 
   @override
@@ -286,14 +280,11 @@ class _PizzaCard extends StatelessWidget {
               child: SizedBox(
                 width: 120,
                 height: 120,
-                child: Hero( // <--- AGREGAR ESTO
-                  tag: title, // Usamos el título o ID como tag único (debe coincidir con el del detalle)
-                  // Nota: Lo ideal es usar product.id, pero en _PizzaCard solo tienes title.
-                  // Si puedes, pasa el 'id' a _PizzaCard. Si no, usa 'title' temporalmente.
+                child: Hero(
+                  tag: title,
                   child: Image.network(
                     imageUrl,
                     fit: BoxFit.cover,
-                    // ...
                   ),
                 ),
               ),
@@ -327,7 +318,6 @@ class _PizzaCard extends StatelessWidget {
                     children: [
                       Text(price, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: kTextColor)),
                       
-                      // BOTÓN FUNCIONAL
                       InkWell(
                         onTap: onAdd, // <--- Acción al tocar
                         child: Container(

@@ -10,20 +10,17 @@ class ProductModel extends ProductEntity {
     required super.imageUrl,
   });
 
-  // 1. De JSON (Supabase) a Dart
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
       id: json['id'] ?? '',
-      name: json['nombre'] ?? 'Sin nombre', // Mapeamos 'nombre' de la DB a 'name'
+      name: json['nombre'] ?? 'Sin nombre',
       description: json['descripcion'] ?? '',
-      // Supabase a veces devuelve int o double, esto asegura que sea double
       price: (json['precio'] as num?)?.toDouble() ?? 0.0,
       rating: (json['calificacion'] as num?)?.toDouble() ?? 0.0,
       imageUrl: json['imagen_url'] ?? '',
     );
   }
 
-  // 2. De Dart a JSON (Por si quieres subir productos después)
   Map<String, dynamic> toJson() {
     return {
       'id': id,

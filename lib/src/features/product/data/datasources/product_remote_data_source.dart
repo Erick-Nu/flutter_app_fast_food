@@ -1,6 +1,6 @@
 import '../../../../core/config/supabase_client.dart';
 import '../models/product_model.dart';
-import '../../../../core/utils/logger.dart'; // Usamos tu logger
+import '../../../../core/utils/logger.dart';
 
 abstract class ProductRemoteDataSource {
   Future<List<ProductModel>> getProducts();
@@ -10,12 +10,10 @@ class ProductRemoteDataSourceImpl implements ProductRemoteDataSource {
   @override
   Future<List<ProductModel>> getProducts() async {
     try {
-      // 1. Hacemos la query a Supabase
       final data = await SupabaseConfig.client
-          .from('productos') // Nombre exacto de tu tabla en Supabase
+          .from('productos')
           .select(); 
 
-      // 2. Convertimos la lista de JSONs a lista de ProductModels
       final List<dynamic> responseList = data as List<dynamic>;
       return responseList.map((json) => ProductModel.fromJson(json)).toList();
       

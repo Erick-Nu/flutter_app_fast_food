@@ -1,6 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../utils/logger.dart'; // <--- 1. Importamos nuestro logger
+import '../utils/logger.dart';
 
 class SupabaseConfig {
   static Future<void> initialize() async {
@@ -17,17 +17,15 @@ class SupabaseConfig {
         anonKey: anonKey,
       );
 
-      // 2. Usamos el logger para un mensaje de ÉXITO (Info) ℹ️
       logger.i(
         'SUPABASE INICIALIZADO CORRECTAMENTE\n'
         'URL: $url'
       );
 
     } catch (e) {
-      // 3. Usamos el logger para un mensaje de ERROR (Fatal/Error)
       logger.e(
         'ERROR CRÍTICO AL CONECTAR SUPABASE', 
-        error: e, // Pasamos el objeto error para que imprima detalles
+        error: e,
       );
       rethrow; 
     }

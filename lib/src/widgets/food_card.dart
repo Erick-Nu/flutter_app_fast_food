@@ -19,7 +19,7 @@ class FoodCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isNetworkImage = imageUrl.startsWith('http');
 
-    return Container( // Widget: Container — Uso: Tarjeta principal con borde y sombra.
+    return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -34,7 +34,7 @@ class FoodCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Expanded( // Widget: Expanded — Uso: La imagen ocupa el espacio disponible dentro de la tarjeta.
+          Expanded(
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               child: isNetworkImage
@@ -70,7 +70,7 @@ class FoodCard extends StatelessWidget {
             ),
           ),
 
-          Padding( // Widget: Padding — Uso: Espaciado interno para título, precio y botón.
+          Padding(
             padding: const EdgeInsets.all(12.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +96,7 @@ class FoodCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
 
-                SizedBox( // Widget: SizedBox — Uso: Control de altura del botón 'Agregar'.
+                SizedBox(
                   height: 35,
                   child: ElevatedButton(
                     onPressed: () {},
@@ -118,10 +118,3 @@ class FoodCard extends StatelessWidget {
     );
   }
 }
-
-// Widget: Container — Uso: Tarjeta principal con borde y sombra.
-// Widget: Column / Row — Uso: Organización vertical de imagen e información.
-// Widget: Expanded / Flexible — Uso: La imagen ocupa el espacio disponible dentro de la tarjeta.
-// Widget: Padding, Center, Align — Uso: Separación y centrado de indicadores de carga.
-// Widget: SizedBox — Uso: Control de altura del botón y espacios entre elementos.
-// Widget: ElevatedButton — Uso: Botón 'Agregar' para añadir el producto al carrito.

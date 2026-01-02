@@ -9,6 +9,5 @@ class CartItem {
     this.quantity = 1,
   });
 
-  // Calcula el subtotal de este item (Precio x Cantidad)
   double get subtotal => product.price * quantity;
 }

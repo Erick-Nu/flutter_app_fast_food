@@ -1,6 +1,5 @@
 import 'package:logger/logger.dart';
 
-// Creamos una instancia global que podremos usar en toda la app
 final logger = Logger(
   printer: PrettyPrinter(
     methodCount: 0, // 0 para no imprimir el stacktrace en mensajes simples

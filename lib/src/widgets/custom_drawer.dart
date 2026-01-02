@@ -8,7 +8,7 @@ class CustomDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer( // Widget: Drawer — Uso: Panel lateral de navegación con avatar y opciones.
+    return Drawer(
       backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
@@ -20,7 +20,7 @@ class CustomDrawer extends StatelessWidget {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20), // Widget: Container — Uso: Cabecera decorada del drawer (avatar y datos).
+            padding: const EdgeInsets.only(top: 50, bottom: 20, left: 20, right: 20),
             decoration: const BoxDecoration(
               gradient: LinearGradient(
                 colors: [kPrimaryColor, Color(0xFFB71C1C)],
@@ -50,7 +50,7 @@ class CustomDrawer extends StatelessWidget {
             ),
           ),
 
-          Expanded( // Widget: Expanded + ListView — Uso: Lista desplazable de opciones del drawer.
+          Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 10),
               children: [
@@ -119,10 +119,3 @@ class _DrawerItem extends StatelessWidget {
     );
   }
 }
-
-// Widget: Drawer — Uso: Panel lateral de navegación con avatar y opciones.
-// Widget: Column / Row — Uso: Organización vertical y horizontal dentro del drawer.
-// Widget: Container — Uso: Cabecera decorada y elementos con padding.
-// Widget: Padding — Uso: Separación entre secciones y para el Divider.
-// Widget: ListView — Uso: Lista desplazable de opciones dentro del drawer.
-// Widget: SizedBox — Uso: Espacio entre elementos (avatar, textos, botones).

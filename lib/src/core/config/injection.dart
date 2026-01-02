@@ -3,7 +3,6 @@ import '../../features/product/data/datasources/product_remote_data_source.dart'
 import '../../features/product/data/repositories/product_repository_impl.dart';
 import '../../features/product/domain/repositories/product_repository.dart';
 
-// --- NUEVOS IMPORTS DE AUTH ---
 import '../../features/auth/data/datasources/auth_remote_data_source.dart';
 import '../../features/auth/data/repositories/auth_repository_impl.dart';
 import '../../features/auth/domain/repositories/auth_repository.dart';
@@ -11,11 +10,9 @@ import '../../features/auth/domain/repositories/auth_repository.dart';
 final sl = GetIt.instance;
 
 Future<void> initInjection() async {
-  // 1. Feature: Product
   sl.registerLazySingleton<ProductRemoteDataSource>(() => ProductRemoteDataSourceImpl());
   sl.registerLazySingleton<ProductRepository>(() => ProductRepositoryImpl(remoteDataSource: sl()));
 
-  // 2. Feature: Auth (NUEVO BLOQUE)
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl());
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl()));
 }

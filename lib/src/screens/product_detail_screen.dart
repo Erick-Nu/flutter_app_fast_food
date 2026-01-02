@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../features/product/domain/entities/product_entity.dart';
 import '../features/cart/presentation/providers/cart_provider.dart';
 
-// --- TUS COLORES OFICIALES ---
 const Color kPrimaryColor = Color(0xFFD32F2F);
 const Color kBackgroundColor = Color(0xFFF2F2F2);
 const Color kTextColor = Color(0xFF333333);
@@ -27,7 +26,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       backgroundColor: kWhiteColor,
       body: Stack(
         children: [
-          // 1. SCROLL VIEW (Imagen elástica + Contenido)
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -51,7 +49,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 flexibleSpace: FlexibleSpaceBar(
                   stretchModes: const [StretchMode.zoomBackground],
                   background: Hero(
-                    tag: widget.product.name, // Asegúrate de usar el mismo tag que en el Home
+                    tag: widget.product.name,
                     child: Image.network(
                       widget.product.imageUrl,
                       fit: BoxFit.cover,
@@ -60,7 +58,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                 ),
               ),
-
               SliverToBoxAdapter(
                 child: Container(
                   decoration: const BoxDecoration(
@@ -73,7 +70,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Barra decorativa
                         Center(
                           child: Container(
                             width: 50,
@@ -85,8 +81,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-
-                        // Título y Precio
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -94,7 +88,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               child: Text(
                                 widget.product.name,
                                 style: const TextStyle(
-                                  fontSize: 26, 
+                                  fontSize: 26,
                                   fontWeight: FontWeight.w800,
                                   color: kTextColor,
                                   height: 1.1,
@@ -105,16 +99,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             Text(
                               "\$${widget.product.price}",
                               style: const TextStyle(
-                                fontSize: 26, 
-                                fontWeight: FontWeight.w900, 
-                                color: kPrimaryColor, // <--- Aquí tu Rojo
+                                fontSize: 26,
+                                fontWeight: FontWeight.w900,
+                                color: kPrimaryColor,
                               ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 15),
-
-                        // Info Chips
                         Row(
                           children: [
                             _InfoChip(icon: Icons.star, color: Colors.amber, label: "${widget.product.rating}"),
@@ -125,16 +117,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ],
                         ),
                         const SizedBox(height: 25),
-
-                        // Descripción
                         const Text("Descripción", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: kTextColor)),
                         const SizedBox(height: 10),
                         Text(
                           widget.product.description,
                           style: TextStyle(color: Colors.grey[600], height: 1.6, fontSize: 15),
                         ),
-                        
-                        const SizedBox(height: 100), // Espacio para el botón flotante
+                        const SizedBox(height: 100),
                       ],
                     ),
                   ),
@@ -142,8 +131,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
             ],
           ),
-
-          // 2. PANEL INFERIOR FIJO
           Positioned(
             bottom: 0,
             left: 0,
@@ -163,10 +150,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               child: Row(
                 children: [
-                  // Selector de Cantidad
                   Container(
                     decoration: BoxDecoration(
-                      color: kBackgroundColor, // <--- Tu color de fondo gris claro
+                      color: kBackgroundColor,
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Row(
@@ -191,14 +177,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                   ),
                   const SizedBox(width: 20),
-
-                  // Botón Agregar
                   Expanded(
                     child: SizedBox(
                       height: 55,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: kPrimaryColor, // <--- Tu Rojo
+                          backgroundColor: kPrimaryColor,
                           foregroundColor: kWhiteColor,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
@@ -207,8 +191,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                         onPressed: () {
                           final cartProvider = Provider.of<CartProvider>(context, listen: false);
-                          
-                          for(int i=0; i<_quantity; i++) {
+
+                          for (int i = 0; i < _quantity; i++) {
                             cartProvider.addToCart(widget.product);
                           }
 
@@ -227,7 +211,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               duration: const Duration(seconds: 2),
                             ),
                           );
-                          
+
                           Navigator.pop(context);
                         },
                         child: Row(
@@ -242,7 +226,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Text(
-                                "\$${(widget.product.price * _quantity).toStringAsFixed(2)}", 
+                                "\$${(widget.product.price * _quantity).toStringAsFixed(2)}",
                                 style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
                               ),
                             )

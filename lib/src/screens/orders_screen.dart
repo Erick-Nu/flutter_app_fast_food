@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 import '../features/cart/presentation/providers/order_provider.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
 import 'order_detail_screen.dart';
-import 'base_screen.dart'; 
+import 'base_screen.dart';
 
+// --- COLORES & ESTILOS ---
 const Color kPrimaryColor = Color(0xFFD32F2F);
-const Color kBackgroundColor = Color(0xFFF2F2F2);
-const Color kTextColor = Color(0xFF333333);
+const Color kBackgroundColor = Color(0xFFF8F9FA); 
+const Color kTextColor = Color(0xFF2D3436);
 
 class OrdersScreen extends StatefulWidget {
   const OrdersScreen({super.key});
@@ -18,19 +19,17 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
+  // Estado para los filtros de la lista visual
+  String _selectedFilter = 'Todos';
+  final List<String> _filters = ['Todos', 'En Curso', 'Entregados'];
 
   @override
   void initState() {
     super.initState();
-    _loadOrders();
+    // Carga inicial de datos
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadOrders());
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  // Método separado para usarlo al iniciar y al deslizar (refresh)
   Future<void> _loadOrders() async {
     final user = Provider.of<AuthProvider>(context, listen: false).currentUser;
     if (user != null) {
@@ -38,72 +37,135 @@ class _OrdersScreenState extends State<OrdersScreen> {
     }
   }
 
+  // Lógica de Filtrado para la LISTA (visualización)
   List<dynamic> _getFilteredOrders(List<dynamic> orders) {
     var filtered = orders.toList();
-    // Ordenar por fecha descendente
+    
+    // 1. Aplicar Filtro
+    if (_selectedFilter == 'En Curso') {
+      filtered = filtered.where((o) => o.status.toLowerCase() != 'entregado' && o.status.toLowerCase() != 'cancelado').toList();
+    } else if (_selectedFilter == 'Entregados') {
+      filtered = filtered.where((o) => o.status.toLowerCase() == 'entregado').toList();
+    }
+
+    // 2. Ordenar por fecha (más reciente primero)
     filtered.sort((a, b) => b.date.compareTo(a.date));
     return filtered;
   }
 
+  // --- MODIFICACIÓN AQUÍ: Estadísticas Totales ---
   Map<String, dynamic> _getStatistics(List<dynamic> orders) {
     if (orders.isEmpty) return {'total': 0, 'amount': 0.0};
-
-    final now = DateTime.now();
-    final thisMonthOrders = orders.where((order) {
-      final orderDate = order.date;
-      return orderDate.year == now.year && orderDate.month == now.month;
-    }).toList();
-
-    final totalAmount = thisMonthOrders.fold<double>(0, (sum, order) => sum + order.total);
-
+    
+    // Ahora sumamos TODOS los pedidos de la lista, sin filtrar por mes.
+    final totalAmount = orders.fold<double>(0.0, (sum, order) => sum + (order.total as num).toDouble());
+    
     return {
-      'total': thisMonthOrders.length,
-      'amount': totalAmount,
+      'total': orders.length, 
+      'amount': totalAmount
     };
   }
 
   @override
   Widget build(BuildContext context) {
+    // Escuchamos al provider para que se actualice automáticamente
     final orderProvider = Provider.of<OrderProvider>(context);
+    final filteredOrders = _getFilteredOrders(orderProvider.orders);
 
     return Scaffold(
       backgroundColor: kBackgroundColor,
+      
       appBar: AppBar(
-        title: const Text("Mis Pedidos", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         backgroundColor: kPrimaryColor,
-        iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
         centerTitle: true,
-        elevation: 2,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Sin notificaciones nuevas'))
-              );
-            },
-          ),
-        ],
+        title: const Text(
+          "Mis Pedidos", 
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+        ),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: orderProvider.isLoading
-          ? const Center(child: CircularProgressIndicator(color: kPrimaryColor))
-          : RefreshIndicator(
-              onRefresh: _loadOrders,
-              color: kPrimaryColor,
-              child: Column(
-                children: [
-                  // Estadísticas
-                  if (orderProvider.orders.isNotEmpty) _buildStatisticsCard(orderProvider.orders),
-
-                  // Lista de pedidos o vacío
-                  Expanded(
-                    child: orderProvider.orders.isEmpty
-                        ? const _EmptyOrders()
-                        : _buildOrdersList(orderProvider, orderProvider.orders),
+      
+      body: RefreshIndicator(
+        onRefresh: _loadOrders,
+        color: kPrimaryColor,
+        child: Column(
+          children: [
+            // Header Curvo Rojo
+            Stack(
+              children: [
+                Container(
+                  height: 30,
+                  decoration: const BoxDecoration(
+                    color: kPrimaryColor,
+                    borderRadius: BorderRadius.vertical(bottom: Radius.zero),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+
+            // 1. TARJETA DE RESUMEN (ESTADÍSTICAS ACTUALIZADAS)
+            if (orderProvider.orders.isNotEmpty) 
+              Transform.translate(
+                offset: const Offset(0, -20), 
+                child: _buildSummaryCard(orderProvider.orders),
+              ),
+
+            // 2. BARRA DE FILTROS
+            if (orderProvider.orders.isNotEmpty)
+              Container(
+                height: 40,
+                margin: const EdgeInsets.only(bottom: 10),
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _filters.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 10),
+                  itemBuilder: (context, index) {
+                    final filter = _filters[index];
+                    final isSelected = _selectedFilter == filter;
+                    return ChoiceChip(
+                      label: Text(filter),
+                      selected: isSelected,
+                      onSelected: (bool selected) {
+                        setState(() => _selectedFilter = filter);
+                      },
+                      selectedColor: kPrimaryColor,
+                      labelStyle: TextStyle(
+                        color: isSelected ? Colors.white : kTextColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12
+                      ),
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        side: BorderSide(color: isSelected ? Colors.transparent : Colors.grey.shade300)
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+            // 3. LISTA DE PEDIDOS
+            Expanded(
+              child: orderProvider.isLoading 
+                ? const _LoadingSkeleton()
+                : filteredOrders.isEmpty
+                    ? const _EmptyStateFiltered()
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 80),
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: filteredOrders.length,
+                        itemBuilder: (context, index) {
+                          final order = filteredOrders[index];
+                          return _OrderCardModern(order: order);
+                        },
+                      ),
+            ),
+          ],
+        ),
+      ),
+      
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.pushAndRemoveUntil(
@@ -112,166 +174,102 @@ class _OrdersScreenState extends State<OrdersScreen> {
             (route) => false,
           );
         },
-        backgroundColor: kPrimaryColor,
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colors.black,
+        elevation: 4,
+        child: const Icon(Icons.add_shopping_cart, color: Colors.white),
       ),
     );
   }
 
-  Widget _buildStatisticsCard(List<dynamic> orders) {
-    final stats = _getStatistics(orders);
+  // Tarjeta de Resumen Cuadrada con Datos Totales
+  Widget _buildSummaryCard(List<dynamic> orders) {
+    final stats = _getStatistics(orders); // Calcula suma total
+    
     return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [kPrimaryColor.withOpacity(0.9), kPrimaryColor],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white, 
+        borderRadius: BorderRadius.circular(10), // Esquinas cuadradas
         boxShadow: [
-          BoxShadow(
-            color: kPrimaryColor.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.08), blurRadius: 15, offset: const Offset(0, 5)),
         ],
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          _StatisticItem(icon: Icons.shopping_bag, label: 'Este mes', value: '${stats['total']}'),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: kPrimaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle
+                ),
+                child: const Icon(Icons.attach_money, color: kPrimaryColor, size: 24),
+              ),
+              const SizedBox(width: 15),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Etiqueta actualizada para reflejar "todos los gastos"
+                  Text("Total Gastado", style: TextStyle(color: Colors.grey[500], fontSize: 12, fontWeight: FontWeight.bold)),
+                  Text("\$${(stats['amount'] as double).toStringAsFixed(2)}", style: const TextStyle(color: kTextColor, fontSize: 24, fontWeight: FontWeight.w900)),
+                ],
+              ),
+            ],
+          ),
           Container(
-            width: 1,
-            height: 40,
-            color: Colors.white.withOpacity(0.3),
-          ),
-          _StatisticItem(
-            icon: Icons.attach_money,
-            label: 'Gastado',
-            value: '\$${(stats['amount'] as double).toStringAsFixed(0)}',
-          ),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: kBackgroundColor,
+              borderRadius: BorderRadius.circular(10)
+            ),
+            child: Column(
+              children: [
+                Text("${stats['total']}", style: const TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text("Pedidos", style: TextStyle(color: Colors.grey[600], fontSize: 10)),
+              ],
+            ),
+          )
         ],
       ),
-    );
-  }
-
-  Widget _buildOrdersList(OrderProvider provider, List<dynamic> orders) {
-    final filteredOrders = _getFilteredOrders(orders);
-
-    if (filteredOrders.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.inbox_outlined, size: 80, color: Colors.grey[400]),
-            const SizedBox(height: 16),
-            Text(
-              'No hay pedidos en esta categoría',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey[700]),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Intenta cambiar el filtro o búsqueda',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-      itemCount: filteredOrders.length,
-      itemBuilder: (context, index) {
-        final order = filteredOrders[index];
-        return TweenAnimationBuilder(
-          tween: Tween<double>(begin: 0, end: 1),
-          duration: Duration(milliseconds: 300 + (index * 100)),
-          builder: (context, double value, child) {
-            return Transform.translate(
-              offset: Offset(0, (1 - value) * 20),
-              child: Opacity(
-                opacity: value,
-                child: child,
-              ),
-            );
-          },
-          child: _OrderCard(order: order),
-        );
-      },
     );
   }
 }
 
-class _OrderCard extends StatelessWidget {
-  final dynamic order; 
-  const _OrderCard({required this.order});
+// --- WIDGETS AUXILIARES ---
 
-  // Colores según estado
+class _OrderCardModern extends StatelessWidget {
+  final dynamic order;
+  const _OrderCardModern({required this.order});
+
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
-      case 'entregado': return Colors.green[700]!;
-      case 'en_camino': return Colors.orange[800]!;
-      case 'preparando': return Colors.blue[700]!;
-      case 'recibido': return Colors.purple[600]!;
-      default: return Colors.grey;
+      case 'entregado': return Colors.green;
+      case 'en_camino': return Colors.orange;
+      case 'preparando': return Colors.blue;
+      case 'cancelado': return Colors.red;
+      default: return Colors.purple;
     }
   }
 
-  // Icono según estado
-  IconData _getStatusIcon(String status) {
-    switch (status.toLowerCase()) {
-      case 'entregado': return Icons.check_circle;
-      case 'en_camino': return Icons.local_shipping;
-      case 'preparando': return Icons.restaurant;
-      case 'recibido': return Icons.receipt_long;
-      default: return Icons.info_outline;
-    }
-  }
-
-  // Texto legible
-  String _getStatusText(String status) {
-    final clean = status.replaceAll('_', ' ');
-    return clean.substring(0, 1).toUpperCase() + clean.substring(1);
-  }
-
-  // Tiempo relativo
-  String _getRelativeTime(DateTime date) {
-    final now = DateTime.now();
-    final difference = now.difference(date);
-
-    if (difference.inMinutes < 1) return 'Hace unos momentos';
-    if (difference.inMinutes < 60) return 'Hace ${difference.inMinutes}m';
-    if (difference.inHours < 24) return 'Hace ${difference.inHours}h';
-    if (difference.inDays < 7) return 'Hace ${difference.inDays}d';
-    
-    return DateFormat('dd MMM', 'es').format(date);
+  String _formatDate(DateTime date) {
+    return DateFormat('d MMM, h:mm a', 'es').format(date);
   }
 
   @override
   Widget build(BuildContext context) {
     final statusColor = _getStatusColor(order.status);
-    final statusIcon = _getStatusIcon(order.status);
-    final relativeTime = _getRelativeTime(order.date);
-    final isActive = order.status.toLowerCase() != 'entregado';
-    
+    final statusText = order.status.replaceAll('_', ' ').toUpperCase();
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: isActive
-            ? Border.all(color: kPrimaryColor.withOpacity(0.3), width: 1.5)
-            : null,
         boxShadow: [
-          BoxShadow(
-            color: isActive ? kPrimaryColor.withOpacity(0.15) : Colors.black.withOpacity(0.05),
-            blurRadius: isActive ? 12 : 8,
-            offset: const Offset(0, 4),
-          )
+          BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 15, offset: const Offset(0, 5))
         ],
       ),
       child: Material(
@@ -279,111 +277,72 @@ class _OrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => OrderDetailScreen(order: order),
-              ),
-            );
-          },
+          onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => OrderDetailScreen(order: order))),
           child: Padding(
-            padding: const EdgeInsets.all(18.0),
+            padding: const EdgeInsets.all(16),
             child: Column(
               children: [
-                // 1. FILA SUPERIOR: Código y Estado
+                // Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            order.code,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: kTextColor,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            relativeTime,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey[500],
-                            ),
-                          ),
-                        ],
-                      ),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(color: Colors.grey[100], shape: BoxShape.circle),
+                          child: const Icon(Icons.receipt, size: 18, color: Colors.grey),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(order.code, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+                            Text(_formatDate(order.date), style: TextStyle(color: Colors.grey[500], fontSize: 11)),
+                          ],
+                        ),
+                      ],
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: statusColor.withOpacity(0.5),
-                          width: 1.2,
-                        ),
+                        color: statusColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(statusIcon, color: statusColor, size: 16),
-                          const SizedBox(width: 6),
-                          Text(
-                            _getStatusText(order.status),
-                            style: TextStyle(
-                              color: statusColor,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        statusText,
+                        style: TextStyle(color: statusColor, fontWeight: FontWeight.bold, fontSize: 10),
                       ),
                     ),
                   ],
                 ),
+                
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(height: 1),
+                ),
 
-                const Divider(height: 18, thickness: 0.8),
-
-                // 2. FILA INFERIOR: Total y flecha
+                // Footer
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Total", style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                        const SizedBox(height: 4),
-                        Text(
-                          "\$${order.total.toStringAsFixed(2)}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 20,
-                            color: kPrimaryColor,
-                          ),
-                        ),
+                        const Text("Total", style: TextStyle(fontSize: 10, color: Colors.grey)),
+                        Text("\$${order.total.toStringAsFixed(2)}", style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
                       ],
                     ),
-                    Row(
+                    
+                    const Row(
                       children: [
-                        Text(
-                          "Ver detalles",
-                          style: TextStyle(
-                            color: kPrimaryColor.withOpacity(0.8),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        const Icon(Icons.arrow_forward_ios, size: 14, color: kPrimaryColor),
+                        Text("Detalles", style: TextStyle(color: kPrimaryColor, fontWeight: FontWeight.bold, fontSize: 12)),
+                        SizedBox(width: 4),
+                        Icon(Icons.arrow_forward_ios, size: 10, color: kPrimaryColor),
                       ],
                     )
                   ],
-                ),
+                )
               ],
             ),
           ),
@@ -393,108 +352,38 @@ class _OrderCard extends StatelessWidget {
   }
 }
 
-class _StatisticItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
-  const _StatisticItem({
-    required this.icon,
-    required this.label,
-    required this.value,
-  });
-
+class _LoadingSkeleton extends StatelessWidget {
+  const _LoadingSkeleton();
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.white, size: 28),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white70,
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-          ),
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: 4,
+      itemBuilder: (_, __) => Container(
+        height: 140,
+        margin: const EdgeInsets.only(bottom: 16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
         ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
+        child: Center(child: CircularProgressIndicator(color: Colors.grey[200])), 
+      ),
     );
   }
 }
 
-class _EmptyOrders extends StatelessWidget {
-  const _EmptyOrders();
-
+class _EmptyStateFiltered extends StatelessWidget {
+  const _EmptyStateFiltered();
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(30),
-              decoration: BoxDecoration(
-                color: kPrimaryColor.withOpacity(0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.receipt_long_rounded,
-                size: 70,
-                color: kPrimaryColor.withOpacity(0.6),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "No tienes pedidos aún",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: kTextColor,
-              ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "¡Pide tu primera pizza hoy!",
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 30),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (_) => const BaseScreen()),
-                  (route) => false,
-                );
-              },
-              icon: const Icon(Icons.shopping_bag, color: Colors.white),
-              label: const Text("Ir al Menú"),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: kPrimaryColor,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                elevation: 4,
-              ),
-            ),
-          ],
-        ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.filter_list_off, size: 60, color: Colors.grey[300]),
+          const SizedBox(height: 10),
+          Text("No hay pedidos con este filtro", style: TextStyle(color: Colors.grey[500])),
+        ],
       ),
     );
   }

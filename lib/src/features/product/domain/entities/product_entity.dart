@@ -17,7 +17,6 @@ class ProductEntity extends Equatable {
     required this.imageUrl,
   });
 
-  // Esto permite comparar objetos: si Pizza A y Pizza B tienen los mismos datos, son iguales.
   @override
   List<Object?> get props => [id, name, description, price, rating, imageUrl];
 }

@@ -26,8 +26,8 @@ class _BaseScreenState extends State<BaseScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold( // Widget: Scaffold — Uso: Contenedor principal que mantiene el estado de la pantalla seleccionada.
-      body: _screens.elementAt(_selectedIndex), // Widget: Widget list (_screens) — Uso: Contiene las pantallas navegables (Home, Orders, Cart, Profile).
+    return Scaffold(
+      body: _screens.elementAt(_selectedIndex),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           backgroundColor: Colors.white,
@@ -45,7 +45,7 @@ class _BaseScreenState extends State<BaseScreen> {
             return const IconThemeData(color: Colors.grey, size: 24);
           }),
         ),
-        child: NavigationBar( // Widget: NavigationBar — Uso: Barra de navegación inferior con 4 destinos.
+        child: NavigationBar(
           height: 65,
           elevation: 5,
           shadowColor: Colors.black12,
@@ -65,5 +65,3 @@ class _BaseScreenState extends State<BaseScreen> {
     );
   }
 }
-
-// Widget: Scaffold — Uso: Contenedor principal que mantiene el estado de la pantalla seleccionada.

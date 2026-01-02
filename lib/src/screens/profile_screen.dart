@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../features/auth/presentation/providers/auth_provider.dart';
 import '../features/cart/presentation/providers/order_provider.dart'; 
+import '../widgets/profile_header.dart'; 
 import '../screens/login_screen.dart';
-import '../widgets/profile_header.dart'; // Asegúrate de actualizar este archivo también (ver abajo)
 import 'orders_screen.dart';
 
 const Color kPrimaryColor = Color(0xFFD32F2F);
@@ -15,17 +15,14 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Usamos Consumer2 para escuchar Auth y Pedidos al mismo tiempo
     return Consumer2<AuthProvider, OrderProvider>(
       builder: (context, authProvider, orderProvider, child) {
         
-        // 1. SI NO ESTÁ LOGUEADO -> Muestra Login
-        if (!authProvider.isAuth) {
+        if (authProvider.status != AuthStatus.authenticated || authProvider.currentUser == null) {
           return const LoginScreen();
         }
 
         final user = authProvider.currentUser!;
-        // Obtenemos la cantidad real de pedidos
         final ordersCount = orderProvider.orders.length.toString();
 
         return Scaffold(
@@ -34,14 +31,12 @@ class ProfileScreen extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                // Header Rojo (Asegúrate de actualizar profile_header.dart)
                 ProfileHeader(
                   name: user.name,
                   email: user.email,
-                  level: user.levelName, 
+                  level: user.levelName ?? 'Novato',
                 ),
 
-                // TARJETA DE ESTADÍSTICAS (Flotando sobre el header)
                 Transform.translate(
                   offset: const Offset(0, -30),
                   child: Container(
@@ -63,13 +58,13 @@ class ProfileScreen extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           _StatItem(
-                            value: ordersCount, // DATO REAL
+                            value: ordersCount, 
                             label: "Pedidos", 
                             icon: Icons.receipt_long
                           ),
                           const _VerticalDivider(),
                           const _StatItem(
-                            value: "3", // Simulado
+                            value: "3",
                             label: "Cupones", 
                             icon: Icons.local_offer_outlined
                           ),
@@ -86,7 +81,6 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
 
-                // MENÚ DE OPCIONES
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
@@ -97,10 +91,13 @@ class ProfileScreen extends StatelessWidget {
                       _ProfileMenuButton(
                         icon: Icons.shopping_bag_outlined,
                         text: "Mis Pedidos",
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const OrdersScreen()));
-                        },
                         badgeCount: int.tryParse(ordersCount) ?? 0,
+                        onTap: () {
+                          Navigator.push(
+                            context, 
+                            MaterialPageRoute(builder: (context) => const OrdersScreen())
+                          );
+                        },
                       ),
                       
                       _ProfileMenuButton(
@@ -131,7 +128,6 @@ class ProfileScreen extends StatelessWidget {
 
                       const SizedBox(height: 35),
 
-                      // BOTÓN CERRAR SESIÓN
                       Container(
                         width: double.infinity,
                         margin: const EdgeInsets.only(bottom: 40),
@@ -160,8 +156,6 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-// --- WIDGETS AUXILIARES ---
-
 class _StatItem extends StatelessWidget {
   final String value;
   final String label;
@@ -179,8 +173,8 @@ class _StatItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(icon, size: 20, color: isPoints ? Colors.amber : Colors.grey[400]),
-        const SizedBox(height: 5),
+        Icon(icon, size: 24, color: isPoints ? Colors.amber : Colors.grey[400]),
+        const SizedBox(height: 8),
         Text(
           value, 
           style: TextStyle(
@@ -267,9 +261,9 @@ class _ProfileMenuButton extends StatelessWidget {
                 if (badgeCount > 0)
                   Container(
                     margin: const EdgeInsets.only(right: 10),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                     decoration: BoxDecoration(color: Colors.orange, borderRadius: BorderRadius.circular(10)),
-                    child: Text("$badgeCount", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                    child: Text("$badgeCount", style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
                   ),
                 Icon(Icons.arrow_forward_ios_rounded, size: 16, color: Colors.grey[300]),
               ],
@@ -279,4 +273,6 @@ class _ProfileMenuButton extends StatelessWidget {
       ),
     );
   }
+
+  
 }
